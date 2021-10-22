@@ -1,3 +1,5 @@
+<%@page import="beans.ClienteBean"%>
+<%@page import="beans.GimnasioBean"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <%@ page import="java.io.*,java.util.*"%>
@@ -9,7 +11,7 @@
 <link rel="stylesheet" href="CSS/FormNewClient.css" />
 </head>
 <body>
-	<h1>Formulario de nuevo ingreso</h1>
+	<h1 class="titulo">Formulario de nuevo ingreso</h1>
 
 	<%
 	//Fijamos el tiempo de refresco 
@@ -18,39 +20,33 @@
 	//Se obtiene la hora actual 
 	Calendar calendar = new GregorianCalendar();
 	String am_pm;
-	int hour = calendar.get(Calendar.HOUR);
-	int minute = calendar.get(Calendar.MINUTE);
-	int second = calendar.get(Calendar.SECOND);
+	int dia = calendar.get(Calendar.DAY_OF_MONTH);
+	int mes = calendar.get(Calendar.MONTH);
+	int anyo = calendar.get(Calendar.YEAR);
 
-	String CT = hour + ":" + minute + ":" + second + " ";
-	out.println("Current Time is: " + CT + "\n");
+	String CT = dia + "/" + mes + "/" + anyo + " ";
+	out.println("Fecha de inscripción: " + CT + "\n");
 	%>
+	<div>
+		<form action="Main.jsp" method="get">
 
-	<form action="Main.jsp" method="get">
-
-		Nombre: <input type="text" name="nombre"> <br /> Apellidos: <input
-			type="text" name="apellidos" /> <br /> ¿Eres mayor de edad? <br />
-		<input type="radio" name="mayorEdad" value="si" />si <br /> <input
-			type="radio" name="mayorEdad" value="no" />no <br /> DNI: <input
-			type="text" name="dni" /> <br />
-		<%
-		//comprobar que los dnis introducidos no estén ya repetidos
-		%>
-
-		Situación: <select name="situacion" /> <br />
-		<option>PENSIONISTA</option>
-		<option>EN_PARO</option>
-		<option>FAMILIA_NUMEROSA</option>
-		<option>FAMILIA_ESPECIAL</option>
-		<option>NINGUNA</option>
-
-		<%
-			//se añade a la clase GimnasioBean
-		%>
-
-		<br /> <br /> <input type="submit" value="Enviar" />
-		<!-- debo poner aquí onsubmit enlazado a un metodo para que añada al participante en la lista de usuarios del gym y que comprueba si ya es usuario -->
-	</form>
-
+			<p class="nombre">Nombre: <input type="text"
+				name="nombre"></p>  <p>Apellidos:<input
+				type="text" name="apellidos" />
+			</p>  <p>¿Eres mayor de edad?</p> <input
+				type="radio" name="mayorEdad" value="si" />si <br /> <input
+				type="radio" name="mayorEdad" value="no" />no <br /> <p>DNI:</p>
+			<input type="text" name="dni" /> <p>Situación:</p> <select
+				name="situacion" /> 
+			<option>PENSIONISTA</option>
+			<option>EN_PARO</option>
+			<option>FAMILIA_NUMEROSA</option>
+			<option>FAMILIA_ESPECIAL</option>
+			<option>NINGUNA</option>	<br /> 
+		<br />		<br />  <input type="submit" value="Enviar" />
+		</form>
+	</div>
+	
+	
 </body>
 </html>

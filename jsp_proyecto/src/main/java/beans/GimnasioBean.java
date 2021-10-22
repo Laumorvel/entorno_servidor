@@ -5,7 +5,7 @@ import java.util.HashSet;
 
 public class GimnasioBean {
 	
-	private HashSet<ClienteBean>clientes;//no debería ser List??
+	private HashSet<ClienteBean>clientes;
 	
 	public GimnasioBean() {
 		this.clientes = new HashSet<ClienteBean>();
@@ -19,6 +19,8 @@ public class GimnasioBean {
 		this.clientes = clientes;
 	}
 	
-	
+	public void addClient(ClienteBean client) {
+		clientes.add(client);
+	}
 
 }

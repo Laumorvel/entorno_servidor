@@ -9,21 +9,18 @@
 </head>
 <body>
 	<h1>Gimnasio Moreno</h1>
-	<br />
+
 	<h3>Comprometidos con tu salud</h3>
 	<br />
-	<table>
-		<tr>
-			<td><a href="FormNewClient.jsp">Hazte socio</a></td>
-		</tr>
-		<tr>
-			<td><a href="Spinning.jsp">Spinning</a> <a href="Hiit.jsp">Hiit</a>
-				<a href="Yoga.jsp">Yoga</a></td>
-		</tr>
-		<tr>
-			<td><a href="Horarios.jsp">Consulta horarios</a> <a
-				href="Contacto.jsp">Contacto</a></td>
-		</tr>
-	</table>
+	<%
+	beans.GimnasioBean gym = new beans.GimnasioBean();
+	%>
+	<div class="contenedor">
+		<p>
+			<a href="FormNewClient.jsp">Hazte socio</a> <a href="Horarios.jsp">Consulta
+				horarios</a>
+		</p>
+		<br />
+	</div>
 </body>
 </html>

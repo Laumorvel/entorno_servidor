@@ -14,7 +14,7 @@ public enum EnumTipo {
 	private int descuento;
 
 	EnumTipo(int descuento) {
-
+		this.descuento=descuento;
 	}
 
 	public int getDescuento() {

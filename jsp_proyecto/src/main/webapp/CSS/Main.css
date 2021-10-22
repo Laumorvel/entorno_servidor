@@ -1,1 +1,42 @@
 @charset "UTF-8";
+
+@import
+	url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+
+@import
+	url('https://fonts.googleapis.com/css2?family=Cinzel&family=Federo&family=Quicksand:wght@300&display=swap')
+	;
+
+* {
+	font-family: 'Quicksand', sans-serif;
+	background-color: rgb(194, 228, 228);
+}
+
+body {
+	padding: 3em;
+	font-size: 22px;
+}
+
+.opciones {
+	margin-top: 3em;
+	text-align: center;
+	display: inline-block;
+}
+
+a {
+	margin: 0 3em;
+	text-decoration: none;
+	background-color:rgb(221, 221, 221);
+	font-family: 'Federo', sans-serif;
+	font-family: 'Quicksand', sans-serif;
+	color: black;
+	border-radius: 12px;
+	cursor: pointer;
+	border: none;
+	padding: 1em 1em;
+	font-weight: bold;
+}
+
+.saludo {
+	margin-top: 1em;
+}
