@@ -13,7 +13,7 @@
 	<h3>Comprometidos con tu salud</h3>
 	<br />
 	<%
-	beans.GimnasioBean gym = new beans.GimnasioBean();
+	beans.GimnasioBean gym = new beans.GimnasioBean();//inicializo en esta página el gimnasio para que no vuelva a inicializarse cada vez que cree a un usuario
 	%>
 	<div class="contenedor">
 		<p>
