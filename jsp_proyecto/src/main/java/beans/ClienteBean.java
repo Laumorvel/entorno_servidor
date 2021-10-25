@@ -43,6 +43,7 @@ public class ClienteBean implements ICalculablePrecio {
 
 	public void setMayorEdad(boolean mayorEdad) {
 		this.mayorEdad = mayorEdad;
+
 	}
 
 	public String getDni() {
@@ -109,6 +110,7 @@ public class ClienteBean implements ICalculablePrecio {
 	 * Para conseguir la situación de cada cliente, como en el formulario se ha
 	 * introducido un select con las opciones predefinidas, no habrá errores.
 	 * Siempre hay una opción marcada.
+	 * 
 	 * @param situacionStringnif
 	 */
 	public void setSituacion(EnumTipo situacionString) {
@@ -138,12 +140,8 @@ public class ClienteBean implements ICalculablePrecio {
 		double pago = PRECIO_BASE_MES - this.situacion.getDescuento();
 		return pago;
 	}
-	
-	
-	
-	
-	
-	//MÉTODOS BÁSICOS DE LA CLASE--------------
+
+	// MÉTODOS BÁSICOS DE LA CLASE--------------
 
 	@Override
 	public int hashCode() {
@@ -168,12 +166,10 @@ public class ClienteBean implements ICalculablePrecio {
 				+ dni + ", situacion=" + situacion + "]";
 	}
 
-	
-	
-	
-	//MÉTODOS ADICIONALES -----------------
+	// MÉTODOS ADICIONALES -----------------
 	/**
 	 * Método genérico privado para validar expresiones regulares
+	 * 
 	 * @param value
 	 * @param regexp
 	 * @return
@@ -186,6 +182,7 @@ public class ClienteBean implements ICalculablePrecio {
 
 	/**
 	 * Método para validar dni auténtico
+	 * 
 	 * @param nif
 	 * @return
 	 */

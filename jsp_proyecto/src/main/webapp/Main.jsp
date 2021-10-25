@@ -26,7 +26,7 @@
 
 
 	<!-- INICIALIZACIÓN DE LA CLASE GIMNASIOBEAN -->
-	//En realidad nunca se llegaría a introducir al usuario porque la colección es un hashSet pero así utilizo las excepciones con jsp -->
+	<!--  En realidad nunca se llegaría a introducir al usuario porque la colección es un hashSet pero así utilizo las excepciones con jsp -->
 	<jsp:useBean id="gym" class="beans.GimnasioBean" scope="session"></jsp:useBean>
 
 
