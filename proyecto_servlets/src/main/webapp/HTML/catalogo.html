@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Catálogo</title>
+<link rel="stylesheet" href="../CSS/catalogo.css" />
+</head>
+<body>
+	<div class="contenedor">
+		<h1 align="center" class="main_title">Catálogo de productos</h1>
+		<hr width="650">
+		<form action="/proyecto_servlet/catalogo" method="post">
+			<table class="tabla">
+				<div class="producto">
+					<!------------PRODUCTO1--------------------------------------------->
+				<tr>
+					<div class="nombre">
+						<td class="title">Bombones rellenos de crema de fresa</td>
+					</div>
+					<div class="foto">
+						<td rowspan=3 class="foto"><img alt=""
+							src="../img/pngwing.com.png" width="200" height="140"></td>
+					</div>
+				</tr>
+				<tr>
+					<td>
+						<div class="elem-group1">
+							Cantidad <input type="number" name="total1" placeholder="0"
+								min="0" required>
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<div class="precio">
+							<p name="precio">1,20€</p>
+						</div>
+					</td>
+				</tr>
+
+				</div>
+				<div class="producto">
+					<!----------PRODUCTO2----------------------------------------------->
+					<tr>
+						<div class="nombre">
+							<td class="title">Barrita de crema con caramelo</td>
+						</div>
+						<div class="foto">
+							<td rowspan=3 class="foto"><img alt=""
+								src="../img/pngwing.com(1).png" width="200" height="140"></td>
+						</div>
+					</tr>
+					<tr>
+						<td>
+							<div class="elem-group1">
+								Cantidad <input type="number" name="total2" placeholder="0"
+									min="0" required>
+
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<div class="precio">
+								<p name="precio">1,80€</p>
+							</div>
+						</td>
+					</tr>
+
+				</div>
+				<div class="producto">
+					<!---------------PRODUCTO3------------------------------------------>
+					<tr>
+						<div class="nombre">
+							<td class="title">Toffee con caramelo salado</td>
+						</div>
+						<div class="foto">
+							<td rowspan=3 class="foto"><img alt=""
+								src="../img/pngwing.com(2).png" width="200" height="140"></td>
+						</div>
+					</tr>
+					<tr>
+						<td>
+							<div class="elem-group1">
+								Cantidad <input type="number" name="total3" placeholder="0"
+									min="0" required>
+							</div>
+						</td>
+					</tr>
+					<tr>
+					<td>
+						<div class="precio">
+							<p name="precio">1,50€</p> 
+						</div>
+					</td>
+				</tr>
+
+				</div>
+				<div class="producto">
+					<!--------------PRODUCTO4------------------------------------------->
+					<tr>
+						<div class="nombre">
+							<td class="title">Bombones rellenos de crema de avellanas</td>
+						</div>
+						<div class="foto">
+							<td rowspan=3 class="foto"><img alt=""
+								src="../img/pngwing.com(3).png" width="200" height="140"></td>
+						</div>
+					</tr>
+					<tr>
+						<td>
+							<div class="elem-group1">
+								Cantidad <input type="number" name="total4" placeholder="0"
+									min="0" required>
+							</div>
+						</td>
+					</tr>
+					<tr>
+					<td>
+						<div class="precio">
+							<p name="precio">1,20€</p> 
+						</div>
+					</td>
+				</tr>
+
+				</div>
+				<div class="producto">
+					<!-----------------PRODUCTO5---------------------------------------->
+					<tr>
+						<div class="nombre">
+							<td class="title">Muffin de cacao</td>
+						</div>
+						<div class="foto">
+							<td rowspan=3 class="foto"><img alt=""
+								src="../img/pngwing.com(4).png" width="200" height="140"></td>
+						</div>
+					</tr>
+					<tr>
+						<td>
+							<div class="elem-group1">
+								Cantidad <input type="number" name="total5" placeholder="0"
+									min="0" required>
+							</div>
+						</td>
+					</tr>
+					<tr>
+					<td>
+						<div class="precio">
+							<p name="precio">2,00€</p> 
+						</div>
+					</td>
+				</tr>
+					
+
+				</div>
+				<div class="producto">
+					<!-----------------------PRODUCTO6---------------------------------->
+					<tr>
+						<div class="nombre">
+							<td class="title">Brownie con pepitas de chocolate</td>
+						</div>
+						<div class="foto">
+							<td rowspan=3 class="foto"><img alt=""
+								src="../img/pngwing.com(5).png" width="200" height="140"></td>
+						</div>
+					</tr>
+					<tr>
+						<td>
+							<div class="elem-group1">
+								Cantidad <input type="number" name="total6" placeholder="0"
+									min="0" required>
+							</div>
+						</td>
+					</tr>
+					<tr>
+					<td>
+						<div class="precio">
+							<p name="precio">2,20€</p> 
+						</div>
+					</td>
+				</tr>
+
+				</div>
+			</table>
+			<div class="submit">
+				<input type="submit" value="Seleccionar">
+			</div>
+		</form>
+	</div>
+</body>
+</html>
