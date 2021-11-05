@@ -23,6 +23,8 @@ public class Factura extends HttpServlet {
 			session.setAttribute("error", "errorIdentificacion");
 			response.sendRedirect("/proyecto_servlets/HTML/init_session.jsp");
 		}
+
+		imprimeFactura(request, response, session);
 	}
 
 	/**
@@ -37,22 +39,24 @@ public class Factura extends HttpServlet {
 	private void imprimeFactura(HttpServletRequest request, HttpServletResponse response, HttpSession session)
 			throws IOException {
 
-		String total = (String) session.getAttribute("total");
-		Double total1 = Double.parseDouble(total);
-		String envio = (String) request.getAttribute("envio");
+		Double total = (Double) session.getAttribute("total");
+		String envio = request.getParameterValues("envio")[0];// al ser un option nos devolverá un String[] con la
+																// opcion seleccionada
 
 		response.setContentType("text/html");
 		PrintWriter out;
+		double iva = total*0.21;
 		out = response.getWriter();
 		out.println("<!DOCTYPE html><html>" + "<head>\n" + "    <meta charset=\"UTF-8\">\n"
 				+ "    <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n"
 				+ "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n"
 				+ "    <title>Resumen</title>\n" + "    <link rel=\"stylesheet\" href=\"CSS/factura.css\">\n"
 				+ "</head>\n" + "\n" + "<body>\n" + "    <h1 class=\"title\">Información del pedido</h1>");
+		out.println("<form action='/proyecto_servlets/gracias' method='post'>");
 
 		if (envio.equals("domicilio")) {
 			out.println("<div class=\"envio\">\n" + "\n"
-					+ "        <p>Su pedido se entregará en un periodo de 24 a 48 horas</p>\n" + "    </div>");
+					+ "        <p class='info'>Su pedido se entregará en un periodo de 24 a 48 horas</p>\n" + "    </div>");
 		} else {
 			out.println("<div class=\"recogida\">\n"
 					+ "        <p>Puede recoger su pedido en cualquier momento en nuestra tienda de Sevilla</p>\n"
@@ -63,18 +67,22 @@ public class Factura extends HttpServlet {
 
 		out.println("\n" + "    <div class=\"factura\">\n"
 				+ "        <table class=\"tabla\" border=\"1px\" cellspacing=\"4px\" align=\"center\" cellpadding=\"10px\" width=\"18em\" height=\"10px\">\n"
-				+ "            <tr>\n" + "                <td>PRECIO DEL PEDIDO</td>\n" + "                <td> " +  total1 + " </td>\n"
-				+ "            </tr>\n" + "            <tr>\n" + "                <td>IVA</td>\n"
-				+ "                <td></td>\n" + "            </tr>");
+				+ "            <tr>\n" + "                <td>PRECIO DEL PEDIDO</td>\n" + "                <td> "
+				+ total + " </td>\n" + "            </tr>\n" + "            <tr>\n" + "                <td>IVA</td>\n"
+				+ "                <td> " + iva  + " </td>\n" + "            </tr>");
 
 		if (envio.equals("domicilio")) {
-			total1 += 2.5;//aumentamos el precio del envío al precio de los productos
-			out.println("   <tr>\n" + "                <td>GASTOS DE ENVÍO</td>\n" + "                <td>2,5€</td>\n"
+			total += 2.5;// aumentamos el precio del envío al precio de los productos
+			out.println("   <tr>\n" + "                <td>GASTOS DE ENVÍO</td>\n" + "                <td>2,5 </td>\n"
 					+ "            </tr>");
 		}
-		//me baso en un iva del 21%
-		out.println("<tr class=\"totalPrecio\">\n" + "                <td>TOTAL</td>\n" + "                <td> " + total1*1.21 + "</td>\n"
-				+ "            </tr>\n" + "        </table>\n" + "\n" + "    </div>\n" + "</body>\n" + "\n"
-				+ "</html>");
+		// me baso en un iva del 21%
+		out.println("<tr class=\"totalPrecio\">\n" + "                <td>TOTAL</td>\n" + "                <td> "
+				+ (total + iva) +"</td>\n" + "            </tr>\n" + "        </table>\n" + "\n" + "    </div>");
+		out.println("<div class='submit'>");
+		out.println("<input type='submit' value='Finalizar'>");
+		out.println("</div>");
+		out.println("</form>");
+		out.println("</body>\n" + "\n" + "</html>");
 	}
 }
