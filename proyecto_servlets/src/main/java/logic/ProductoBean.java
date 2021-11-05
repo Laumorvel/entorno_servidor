@@ -21,6 +21,7 @@ public class ProductoBean {
 		this.precio = precio;
 	}
 
+
 	public String getNombre() {
 		return nombre;
 	}
@@ -58,5 +59,7 @@ public class ProductoBean {
 	public String toString() {
 		return "CatalogoBean [nombre=" + nombre + ", precio=" + precio + "]";
 	}
+
+	
 
 }

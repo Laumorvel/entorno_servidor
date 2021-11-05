@@ -26,10 +26,10 @@
 		String msg = "";
 		if (session.getAttribute("error") != null) {
 			msg = "Introduzca un usuario y contraseña válidos.";
+			session.removeAttribute("error");
 		}
 
 		session.removeAttribute("nombreUser");
-
 		%>
 		<p>
 			<%=msg%>

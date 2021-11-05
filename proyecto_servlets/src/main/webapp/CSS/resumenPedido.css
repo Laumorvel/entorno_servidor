@@ -13,48 +13,28 @@
 	text-align: "center";
 }
 
+body{
+	margin: 2em 10em;
+	height: 100%;
+}
+
 .title {
 	font-weight: bold;
+	text-align: center;
+	padding: 1em;
+	font-size: 30px;
+}
+
+.product{
+	display: grid;
 }
 
 .contenedor{
 	text-align: center;
 }
-
-.main_title {
-	font-weight: bold;
-	font-size: 30px;
-}
-
-table {
-	padding: 0.5em;
-	margin-bottom: 2em;
-}
-
-
-form {
-	margin: 2em;
-	text-align: center;
-	display: inline-block;
-	justify-content: center;
-}
-
-input[type="number"] {
-	width: 3em;
-}
-
-td {
-
-	text-align: left;
-}
-
-tr {
-
-	text-align: left;
-}
-
 .submit {
 	text-align: center;
+	margin: 2em auto;
 }
 
 input[type=submit] {
@@ -71,6 +51,11 @@ input[type=submit]:hover {
 	color:yellow;
 }
 
-.foto {
-	padding-left: 12em;
+.nombreProducto{
+	font-weight: bold;
+	font-size: 24px;
+}
+.img{
+	padding: 1em 2em;
+	float: right;
 }

@@ -7,10 +7,21 @@ import java.util.Objects;
 public class CatalogoBean {
 
 	private List<ProductoBean> productos;
+	private List<String> fotos;
 
 	public CatalogoBean() {
 		this.productos = new ArrayList<ProductoBean>();
 		generaList();
+		this.fotos = new ArrayList<String>();
+		generaFotosCatalogo();
+	}
+
+	public List<String> getFotos() {
+		return fotos;
+	}
+
+	public void setFotos(List<String> fotos) {
+		this.fotos = fotos;
 	}
 
 	public List<ProductoBean> getProductos() {
@@ -63,4 +74,21 @@ public class CatalogoBean {
 		this.productos.add(p6);
 	}
 
+	private void generaFotosCatalogo() {
+		
+		String foto1 = "'img/pngwing.com.png'";
+		String foto2 = "'img/pngwing.com(1).png'";
+		String foto3 = "'img/pngwing.com(2).png'";
+		String foto4 = "'img/pngwing.com(3).png'";
+		String foto5 = "'img/pngwing.com(4).png'";
+		String foto6 = "'img/pngwing.com(5).png'";
+
+		this.fotos.add(foto1);
+		this.fotos.add(foto2);
+		this.fotos.add(foto3);
+		this.fotos.add(foto4);
+		this.fotos.add(foto5);
+		this.fotos.add(foto6);
+	}
+	
 }
