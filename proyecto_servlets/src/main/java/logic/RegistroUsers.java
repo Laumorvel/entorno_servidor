@@ -2,7 +2,9 @@ package logic;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -19,7 +21,7 @@ public class RegistroUsers extends HttpServlet {
 	 * únicos segistrados
 	 */
 
-	// Metodo para GET
+	// Metodo para POST
 
 	/**
 	 * 
@@ -37,7 +39,8 @@ public class RegistroUsers extends HttpServlet {
 		// creamos la sesión si y se crea si no exite. --> despues tendremos que
 		// comprobar que no sea nueva
 
-		HttpSession session = request.getSession(true);
+		HttpSession session = request.getSession(true);// si se quiere una sesión guardando datos anteriores de la sesión no
+													// podemos poner el new dentro
 
 		String nombreUser = (String) request.getParameter("nombre");
 		String passwordUser = (String) request.getParameter("password");
@@ -51,45 +54,104 @@ public class RegistroUsers extends HttpServlet {
 		// Si coinciden nombre y contraseña y no hay una sesión iniciada se habrá
 		// producido un inicio de sesión correcto
 		if (map.containsKey(nombreUser) && map.get(nombreUser).equals(passwordUser)
-				&& session.getAttribute("nombreUser") == null) {
+				&& session.getAttribute("nombreUser") == null) {// isNew
 
 			session.setAttribute("nombreUser", nombreUser);// lo usaremos más adelante para comprobar que el usuario se
 															// ha identificado y no ha entrado por url directamente
-			response.sendRedirect("/proyecto_servlets/HTML/catalogo.html");
+			//response.sendRedirect("/proyecto_servlets/catalogo");
+			generacionForm(response, request);
 
 		} else {// en caso contrario se invalida la sesión y se redirige a la misma página de
 				// nuevo mostrando mensaje de error
 			session.setAttribute("error", "errorIdentificacion");
-			compruebaError(session, response);
-			response.sendRedirect("/proyecto_servlets/HTML/init_session.html");
-			session.invalidate();
+			response.sendRedirect("/proyecto_servlets/HTML/init_session.jsp");
+			// session.invalidate(); --> no se invalida la sesión ya que se perderían los
+			// datos
+		}
+		
+	}
+	
+private void generacionForm(HttpServletResponse response, HttpServletRequest request) {
+		
+		List<String> fotos = new ArrayList<>();
+		String foto1 = "../img/pngwing.com.png";
+		String foto2 = "../img/pngwing.com.png(1)";
+		String foto3 = "../img/pngwing.com.png(2)";
+		String foto4 = "../img/pngwing.com.png(3)";
+		String foto5 = "../img/pngwing.com.png(4)";
+		String foto6 = "../img/pngwing.com.png(5)";
+
+		fotos.add(foto1);
+		fotos.add(foto2);
+		fotos.add(foto3);
+		fotos.add(foto4);
+		fotos.add(foto5);
+		fotos.add(foto6);
+		
+		
+		CatalogoBean catalogo = new CatalogoBean();
+		response.setContentType("text/html");
+		PrintWriter out;
+		try {
+			out = response.getWriter();
+			out.println("<html>");
+			out.println("<head>");
+			out.println("<meta charset='UTF-8'");
+			out.println("<link rel='stylesheet' href='../CSS/catalogo.css\' />");
+			out.println("</head>");
+			out.println("<body>");
+			out.println("<div class= 'contenedor'>");
+			out.println("<h1 align='center' class='main_title'>Catálogo de productos</h1>");
+			out.println("<hr width='650'>");
+			out.println("<form action='proyecto_servlet/catalogo' method='post'>");
+			out.println("<table class='tabla'>");
+
+			for (ProductoBean product : catalogo.getProductos()) {
+				String nombreProducto = product.getNombre();
+				double precioProducto = product.getPrecio();
+				int i = 0;
+
+				out.println("<div class='producto'>");
+				out.println("<tr>");
+				out.println("<div class='nombre'>");
+				out.println("<td class='title'>" + nombreProducto + "</td>");
+				out.println("</div>");
+				out.println("<div class='foto'>");
+				out.println("<td rowspan=3 class='foto'><img + src=" + fotos.get(i) + " width='200' height='140'>");
+				out.println("</td>");
+				out.println("</div>\"");
+				out.println("</tr>");
+				out.println("<tr>");
+				out.println("<td>");
+				out.println("<div class='elem-group1'>");
+				out.println("Cantidad <input type='number' name='total1' placeholder='0' min='0'>");
+				out.println("</div>");
+				out.println("</td>");
+				out.println("</tr>");
+				out.println("<tr>");
+				out.println("<td>");
+				out.println("<div class='precio'>");
+				out.println("<p name='precio'>" + precioProducto + " </p>");
+				out.println("</div>");
+				out.println("</td>>");
+				out.println("</tr>");
+				out.println("</div>");
+				i++;
+
+			}
+			out.println("</table>");
+			out.println("<div class='submit'>");
+			out.println("<input type='submit' value='Seleccionar'>");
+			out.println("</div>");
+			out.println("</form>");
+			out.println("</div>");
+			out.println("</body>");
+			out.println("</html>");
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 
-	/**
-	 * Método para que se imprima el mensaje de error en la página siempre que se
-	 * establezca un atributo error de identificación en la sesión. En caso
-	 * contrario, se elimina el atributo
-	 * 
-	 * @param session
-	 * @param response
-	 */
-	private void compruebaError(HttpSession session, HttpServletResponse response) {
-		if (session.getAttribute("error").equals("errorIdentificacion")) {
-			PrintWriter out = null;
-			try {
-				response.setContentType("text/html");
-				out = response.getWriter();
-		        out.println("<div>" +
-		                       "<h3>El usuario o contraseña es incorrecto.</h3></div>");
-				
-		        //out.close();   Si no lo cierro, no funciona pero si lo cierro no me redirige 
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		} else {
-			session.setAttribute("error", "");
-		}
-	}
+	
 
 }

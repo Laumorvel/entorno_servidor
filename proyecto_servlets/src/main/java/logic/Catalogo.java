@@ -1,14 +1,18 @@
 package logic;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 @WebServlet("/catalogo")
-public class Catalogo {
+public class Catalogo extends HttpServlet{
 
 	/**
 	 * Introducimos todos los datos que nos serán necesarios para elaborar un
@@ -20,56 +24,98 @@ public class Catalogo {
 	 * @throws ServletException
 	 * @throws IOException
 	 */
-	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		HttpSession session = request.getSession();
 
 		// Comprobamos que haya un usuario logueado
+
 		if (session.getAttribute("nombreUser") == null) {
-			response.sendRedirect("/registroUsers");
+			response.sendRedirect("/proyecto_servlets/HTML/init_session.html");
 			session.invalidate();
 		}
 
-		// PRODUCTO 1
-		int total1 = Integer.parseInt(request.getParameter("total1"));
-		double precio1 = total1 * 1.20;
-		session.setAttribute("standard1", 1.20);
-		session.setAttribute("total1", total1);// crear método --> si el total es 0, no mostrar
-		session.setAttribute("precio1", precio1);
+		List<String> fotos = new ArrayList<>();
+		String foto1 = "../img/pngwing.com.png";
+		String foto2 = "../img/pngwing.com.png(1)";
+		String foto3 = "../img/pngwing.com.png(2)";
+		String foto4 = "../img/pngwing.com.png(3)";
+		String foto5 = "../img/pngwing.com.png(4)";
+		String foto6 = "../img/pngwing.com.png(5)";
 
-		// PRODUCTO 2
-		int total2 = Integer.parseInt(request.getParameter("total2"));
-		double precio2 = total1 * 1.80;
-		session.setAttribute("standard2", 1.80);
-		session.setAttribute("total2", total2);
-		session.setAttribute("precio2", precio2);
+		fotos.add(foto1);
+		fotos.add(foto2);
+		fotos.add(foto3);
+		fotos.add(foto4);
+		fotos.add(foto5);
+		fotos.add(foto6);
 
-		// PRODUCTO3
-		int total3 = Integer.parseInt(request.getParameter("total3"));
-		double precio3 = total1 * 1.50;
-		session.setAttribute("standard3", 1.50);
-		session.setAttribute("total3", total3);
-		session.setAttribute("precio3", precio3);
+		generacionForm(response, fotos, request);
 
-		// PRODUCTO 4
-		int total4 = Integer.parseInt(request.getParameter("total4"));
-		double precio4 = total1 * 1.20;
-		session.setAttribute("standard4", 1.20);
-		session.setAttribute("total2", total4);
-		session.setAttribute("precio2", precio4);
+	}
 
-		// PRODUCTO5
-		int total5 = Integer.parseInt(request.getParameter("total5"));
-		double precio5 = total5 * 2;
-		session.setAttribute("standard5", 2);
-		session.setAttribute("total5", total5);
-		session.setAttribute("precio5", precio5);
+	private void generacionForm(HttpServletResponse response, List<String> fotos, HttpServletRequest request) {
+		CatalogoBean catalogo = new CatalogoBean();
+		response.setContentType("text/html");
+		PrintWriter out;
+		try {
+			out = response.getWriter();
+			out.println("<html>");
+			out.println("<head>");
+			out.println("<meta charset='UTF-8'");
+			out.println("<title>Catálogo</title>");
+			out.println("<link rel='stylesheet' href='../CSS/catalogo.css\' />");
+			out.println("</head>");
+			out.println("<body>");
+			out.println("<div class= 'contenedor'>");
+			out.println("<h1 align='center' class='main_title'>Catálogo de productos</h1>");
+			out.println("<hr width='650'>");
+			out.println("<form action='proyecto_servlet/catalogo' method='post'>");
+			out.println("<table class='tabla'>");
 
-		// PRODUCTO6
-		int total6 = Integer.parseInt(request.getParameter("total6"));
-		double precio6 = total1 * 2.20;
-		session.setAttribute("standard6", 2.20);
-		session.setAttribute("total6", total6);
-		session.setAttribute("precio6", precio6);
+			for (ProductoBean product : catalogo.getProductos()) {
+				String nombreProducto = product.getNombre();
+				double precioProducto = product.getPrecio();
+				int i = 0;
+
+				out.println("<div class='producto'>");
+				out.println("<tr>");
+				out.println("<div class='nombre'>");
+				out.println("<td class='title'>" + nombreProducto + "</td>");
+				out.println("</div>");
+				out.println("<div class='foto'>");
+				out.println("<td rowspan=3 class='foto'><img + src=" + fotos.get(i) + " width='200' height='140'>");
+				out.println("</td>");
+				out.println("</div>\"");
+				out.println("</tr>");
+				out.println("<tr>");
+				out.println("<td>");
+				out.println("<div class='elem-group1'>");
+				out.println("Cantidad <input type='number' name='total1' placeholder='0' min='0'>");
+				out.println("</div>");
+				out.println("</td>");
+				out.println("</tr>");
+				out.println("<tr>");
+				out.println("<td>");
+				out.println("<div class='precio'>");
+				out.println("<p name='precio'>" + precioProducto + " </p>");
+				out.println("</div>");
+				out.println("</td>>");
+				out.println("</tr>");
+				out.println("</div>");
+				i++;
+
+			}
+			out.println("</table>");
+			out.println("<div class='submit'>");
+			out.println("<input type='submit' value='Seleccionar'>");
+			out.println("</div>");
+			out.println("</form>");
+			out.println("</div>");
+			out.println("</body>");
+			out.println("</html>");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 }
