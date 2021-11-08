@@ -26,11 +26,13 @@ public class ResumenPedido extends HttpServlet {
 		// creamos la sesión si y se crea si no exite. --> despues tendremos que
 		// comprobar que no sea nueva
 		HttpSession session = request.getSession(true);
-		if (session.getAttribute("nombreUser") == null) {
+		if (session.getAttribute("nombreUser") == null || session.getAttribute("registroUser") == null) {
 			session.setAttribute("error", "errorIdentificacion");
 			response.sendRedirect("/proyecto_servlets/HTML/init_session.jsp");
 		}
 
+		//Variable para comprobar que el usuario procede de esta clase en la siguiente
+		session.setAttribute("resumenPedido", "true");
 		calculaPreciosEImprime(request, response, session);
 
 	}
@@ -53,7 +55,7 @@ public class ResumenPedido extends HttpServlet {
 		List<String> fotos = catalogo.getFotos();
 		double precio;
 		int j = 0;
-		double precioTotal = 0;
+		double Preciototal = 0;
 		for (int i = 0; i < cantidadesForm.length; i++) {
 			if (!cantidadesForm[i].equals("")) {
 				j++;
@@ -62,6 +64,7 @@ public class ResumenPedido extends HttpServlet {
 				String nombre = product.getNombre();
 				int cantidad = Integer.parseInt(cantidadesForm[i]);
 				double total = precio * cantidad;
+				total = (double) Math.round(total * 100d) / 100d;
 
 				out.println("<div class=\"product\">\n" + "             <div class='datos'>\n"
 						+ "            <p class=\"nombreProducto\">" + j + ".  " + nombre + "</p>\n"
@@ -70,7 +73,7 @@ public class ResumenPedido extends HttpServlet {
 						+ "        <div class=\"img\">\n" + "            <img src=" + fotos.get(i)
 						+ " width=\"200\" height=\"140\">\n" + "        </div>" + "        </div>\n");
 
-				precioTotal += total;
+				Preciototal += total;
 			}
 		}
 		out.println("<div class='envio'> "
@@ -82,14 +85,14 @@ public class ResumenPedido extends HttpServlet {
 				+" </label>"
 				+" </div>");
 		
-		out.println("<p>Precio de compra: " + precioTotal + " </p>");
+		out.println("<p>Precio de compra: " + Preciototal  + " </p>");
 		
 		if (j == 0) {
 			out.println("</br><h2>No tiene productos en el carrito</h2>");
 		}
 		
 		//Guardamos el precio total para recuperarlo en nuestra última clase
-		session.setAttribute("total", precioTotal);
+		session.setAttribute("total", Preciototal);
 
 		out.println("</div>");
 		out.println("<div class='submit'>");

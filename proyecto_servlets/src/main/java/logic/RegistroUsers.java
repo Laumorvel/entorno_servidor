@@ -39,7 +39,7 @@ public class RegistroUsers extends HttpServlet {
 		// creamos la sesión si y se crea si no exite. --> despues tendremos que
 		// comprobar que no sea nueva
 
-		HttpSession session = request.getSession(true);
+		HttpSession session = request.getSession(true);// si no hay sesión iniciada, que se cree
 
 		String nombreUser = (String) request.getParameter("nombre");
 		String passwordUser = (String) request.getParameter("password");
@@ -58,10 +58,12 @@ public class RegistroUsers extends HttpServlet {
 
 			session.setAttribute("nombreUser", nombreUser);// lo usaremos más adelante para comprobar que el usuario se
 															// ha identificado y no ha entrado por url directamente
+
+			session.setAttribute("registroUser", "true");// defino variable en la sesión para compreobar que en la
+															// siguiente pantalla procesa de esta
 			generacionForm(response, request, session);
 
-		} else {// en caso contrario se invalida la sesión y se redirige a la misma página de
-				// nuevo mostrando mensaje de error
+		} else {
 			session.setAttribute("error", "errorIdentificacion");
 			response.sendRedirect("/proyecto_servlets/HTML/init_session.jsp");
 
