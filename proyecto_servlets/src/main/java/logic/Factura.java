@@ -12,13 +12,22 @@ import javax.servlet.http.HttpSession;
 @WebServlet("/factura")
 public class Factura extends HttpServlet {
 
+	private static final long serialVersionUID = 1L;
+
+	@Override
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		doPost(request, response);
 	}
 
+	/**
+	 * Comprobamos que el usuario ha pasado por ResumenPedido y se ha iniciado sesión. 
+	 * En caso negativo, se le redirige a la página de inicio.
+	 */
+	@Override
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
-		HttpSession session = request.getSession(true);
+		HttpSession session = request.getSession(false);
+		session.setMaxInactiveInterval(120);
 		if (session.getAttribute("nombreUser") == null || session.getAttribute("resumenPedido") == null) {
 			session.setAttribute("error", "errorIdentificacion");
 			response.sendRedirect("/proyecto_servlets/HTML/init_session.jsp");
@@ -31,8 +40,7 @@ public class Factura extends HttpServlet {
 
 	/**
 	 * En función de si se trata de un envío o una recogida, se imprimirá una cosa u
-	 * otra.
-	 * 
+	 * otra. En caso de ser un envío a domicilio, se añadirá a la factura el precio de envío (2,5€).
 	 * @param request
 	 * @param response
 	 * @param session
@@ -48,6 +56,7 @@ public class Factura extends HttpServlet {
 		response.setContentType("text/html");
 		PrintWriter out;
 		double iva = total * 0.21;
+		String div = "    </div>";
 		out = response.getWriter();
 		out.println("<!DOCTYPE html><html>" + "<head>\n" + "    <meta charset=\"UTF-8\">\n"
 				+ "    <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n"
@@ -59,20 +68,20 @@ public class Factura extends HttpServlet {
 		if (envio.equals("domicilio")) {
 			out.println("<div class=\"envio\">\n" + "\n"
 					+ "        <p class='info'>Su pedido se entregará en un periodo de 24 a 48 horas</p>\n"
-					+ "    </div>");
+					+ div);
 		} else {
 			out.println("<div class=\"recogida\">\n"
 					+ "        <p align='center'>Puede recoger su pedido en cualquier momento en nuestra tienda de Sevilla</p>\n"
 					+ "        <p align='center'><iframe src=\"https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3169.961037871186!2d-5.996651884693376!3d37.39075367983123!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xd126c101cddb079%3A0xe114975ce20b4190!2sC.%20Sierpes%2C%2041004%20Sevilla!5e0!3m2!1ses!2ses!4v1636149164252!5m2!1ses!2ses\"\n"
 					+ "            width=\"600\" height=\"450\" style=\"border:0;\" allowfullscreen=\"\" loading=\"lazy\"></iframe></p>\n"
-					+ "    </div>");
+					+ div);
 		}
 
 		out.println("\n" + "    <div class=\"factura\">\n"
 				+ "        <table class=\"tabla\" border=\"1px\" cellspacing=\"4px\" align=\"center\" cellpadding=\"10px\" width=\"18em\" height=\"10px\">\n"
-				+ "            <tr>\n" + "                <td>PRECIO DEL PEDIDO</td>\n" + "                <td> "
+				+ "            <tr>\n" + "                <td>PRECIO DEL PEDIDO</td>\n" + "<td>"
 				+ total + " </td>\n" + "            </tr>\n" + "            <tr>\n" + "                <td>IVA</td>\n"
-				+ "                <td> " + (double) Math.round(iva * 100d) / 100d + " </td>\n" + "            </tr>");
+				+ "<td>" +  Math.round(iva * 100d) / 100d + " </td>\n" + "            </tr>");
 
 		if (envio.equals("domicilio")) {
 			total += 2.5;// aumentamos el precio del envío al precio de los productos
@@ -80,8 +89,8 @@ public class Factura extends HttpServlet {
 					+ "            </tr>");
 		}
 		// me baso en un iva del 21%
-		out.println("<tr class=\"totalPrecio\">\n" + "                <td>TOTAL</td>\n" + "                <td> "
-				+ ((double) Math.round((total + iva) * 100d) / 100d) + "</td>\n" + "            </tr>\n" + "        </table>\n" + "\n" + "    </div>");
+		out.println("<tr class=\"totalPrecio\">\n" + "                <td>TOTAL</td>\n" + "<td>"
+				+ ( Math.round((total + iva) * 100d) / 100d) + "</td>\n" + "            </tr>\n" + "        </table>\n" + "\n" + "    </div>");
 		out.println("<div class='submit'>");
 		out.println("<input type='submit' value='Finalizar'>");
 		out.println("</div>");

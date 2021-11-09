@@ -2,7 +2,6 @@ package logic;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,24 +15,21 @@ import javax.servlet.http.HttpSession;
 @WebServlet("/registroUsers")
 public class RegistroUsers extends HttpServlet {
 
-	/*
-	 * Estos son los usuarios que podrán entrar dentro de la aplicación pues son lo
-	 * únicos segistrados
-	 */
-
-	// Metodo para POST
-
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 
+	@Override
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		doPost(request, response);
 	}
 
 	// Metodo para POST
-
+	/**
+	 * Controlamos que el usuario sea uno de los registrados en la applicación. Si
+	 * es así, imprimimos el catálogo de productos. En caso contrario, reconducimos
+	 * al inicio. Marcamos que se invalide la sesión pasados 2 minutos sin actividad
+	 * en la página.
+	 */
+	@Override
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
 		// creamos la sesión si y se crea si no exite. --> despues tendremos que
@@ -41,15 +37,21 @@ public class RegistroUsers extends HttpServlet {
 
 		HttpSession session = request.getSession(true);// si no hay sesión iniciada, que se cree
 
-		String nombreUser = (String) request.getParameter("nombre");
-		String passwordUser = (String) request.getParameter("password");
+		session.setMaxInactiveInterval(120);
+
+		String nombreUser = request.getParameter("nombre");
+		String passwordUser = request.getParameter("password");
 
 		// USUARIOS PREDEFINIDOS ACEPTADOS
-		Map<String, String> map = new HashMap<String, String>();
+		/*
+		 * Estos son los usuarios que podrán entrar dentro de la aplicación pues son lo
+		 * únicos segistrados
+		 */
+		Map<String, String> map = new HashMap<>();
 		map.put("lauramolez", "lauramolez");
 		map.put("alex43", "alex43");
 		map.put("lola3", "lola3");
-		map.put("", "");
+		map.put("", "");// he añadido este usuario y contraseña para que sea más rápido de probar
 
 		// Si coinciden nombre y contraseña y no hay una sesión iniciada se habrá
 		// producido un inicio de sesión correcto
@@ -61,7 +63,7 @@ public class RegistroUsers extends HttpServlet {
 
 			session.setAttribute("registroUser", "true");// defino variable en la sesión para compreobar que en la
 															// siguiente pantalla procesa de esta
-			generacionForm(response, request, session);
+			generacionForm(response);
 
 		} else {
 			session.setAttribute("error", "errorIdentificacion");
@@ -71,7 +73,15 @@ public class RegistroUsers extends HttpServlet {
 
 	}
 
-	private void generacionForm(HttpServletResponse response, HttpServletRequest request, HttpSession session) {
+	/**
+	 * Vamos a generar el formulario que registra los pedidos del usuario.
+	 * Posteriormente recogeremos las cantidades que vamos a pedir de cada producto.
+	 * 
+	 * @param response
+	 * @param request
+	 * @param session
+	 */
+	private void generacionForm(HttpServletResponse response) {
 
 		CatalogoBean catalogo = new CatalogoBean();
 		List<String> fotos = catalogo.getFotos();

@@ -24,8 +24,9 @@ public class Catalogo extends HttpServlet{
 	 * @throws ServletException
 	 * @throws IOException
 	 */
+	@Override
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		HttpSession session = request.getSession();
+		HttpSession session = request.getSession(false);
 
 		// Comprobamos que haya un usuario logueado
 
@@ -49,73 +50,7 @@ public class Catalogo extends HttpServlet{
 		fotos.add(foto5);
 		fotos.add(foto6);
 
-		generacionForm(response, fotos, request);
-
 	}
 
-	private void generacionForm(HttpServletResponse response, List<String> fotos, HttpServletRequest request) {
-		CatalogoBean catalogo = new CatalogoBean();
-		response.setContentType("text/html");
-		PrintWriter out;
-		try {
-			out = response.getWriter();
-			out.println("<html>");
-			out.println("<head>");
-			out.println("<meta charset='UTF-8'");
-			out.println("<title>Catálogo</title>");
-			out.println("<link rel='stylesheet' href='../CSS/catalogo.css\' />");
-			out.println("</head>");
-			out.println("<body>");
-			out.println("<div class= 'contenedor'>");
-			out.println("<h1 align='center' class='main_title'>Catálogo de productos</h1>");
-			out.println("<hr width='650'>");
-			out.println("<form action='proyecto_servlet/catalogo' method='post'>");
-			out.println("<table class='tabla'>");
-
-			for (ProductoBean product : catalogo.getProductos()) {
-				String nombreProducto = product.getNombre();
-				double precioProducto = product.getPrecio();
-				int i = 0;
-
-				out.println("<div class='producto'>");
-				out.println("<tr>");
-				out.println("<div class='nombre'>");
-				out.println("<td class='title'>" + nombreProducto + "</td>");
-				out.println("</div>");
-				out.println("<div class='foto'>");
-				out.println("<td rowspan=3 class='foto'><img + src=" + fotos.get(i) + " width='200' height='140'>");
-				out.println("</td>");
-				out.println("</div>\"");
-				out.println("</tr>");
-				out.println("<tr>");
-				out.println("<td>");
-				out.println("<div class='elem-group1'>");
-				out.println("Cantidad <input type='number' name='total1' placeholder='0' min='0'>");
-				out.println("</div>");
-				out.println("</td>");
-				out.println("</tr>");
-				out.println("<tr>");
-				out.println("<td>");
-				out.println("<div class='precio'>");
-				out.println("<p name='precio'>" + precioProducto + " </p>");
-				out.println("</div>");
-				out.println("</td>>");
-				out.println("</tr>");
-				out.println("</div>");
-				i++;
-
-			}
-			out.println("</table>");
-			out.println("<div class='submit'>");
-			out.println("<input type='submit' value='Seleccionar'>");
-			out.println("</div>");
-			out.println("</form>");
-			out.println("</div>");
-			out.println("</body>");
-			out.println("</html>");
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
+	
 }

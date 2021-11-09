@@ -25,6 +25,15 @@ body{
 	font-size: 30px;
 }
 
+.precioCompra{
+	font-weight: bold;
+	font-size: 30px;
+}
+
+.envio{
+	margin-top: 3em;
+}
+
 .product{
 	display: grid;
 }

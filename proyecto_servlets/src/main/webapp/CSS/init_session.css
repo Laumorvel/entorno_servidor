@@ -6,7 +6,7 @@
 @import
 	url('https://fonts.googleapis.com/css2?family=Cinzel&family=Federo&family=Quicksand:wght@300&display=swap')
 	;
-	
+
 * {
 	font-family: 'Quicksand', sans-serif;
 	background-color: rgb(194, 228, 228);
@@ -14,33 +14,37 @@
 	text-align: "center";
 }
 
+#error {
+	margin-top: 2em;
+	display: flex;
+	justify-content: center;
+}
 
-
-.titulo{
+.titulo {
 	font-size: 30px;
 	font-weight: bold;
 }
 
-input{
+input {
 	background-color: white;
 	margin: 1em;
 }
 
-form{
+form {
 	margin-left: 2em;
 	text-align: center;
 }
 
-input[type="submit"]{
+input[type="submit"] {
 	padding: 0.5em;
 }
 
-input[type="submit"]:hover{
+input[type="submit"]:hover {
 	background-color: gray;
 	cursor: pointer;
 }
 
-.contenedor{
+.contenedor {
 	justify-content: center;
 	display: flex;
 	border: 1px black solid;

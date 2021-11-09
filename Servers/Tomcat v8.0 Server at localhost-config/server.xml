@@ -124,7 +124,7 @@
              Note: The pattern used is equivalent to using pattern="common" -->
         <Valve className="org.apache.catalina.valves.AccessLogValve" directory="logs" pattern="%h %l %u %t &quot;%r&quot; %s %b" prefix="localhost_access_log" suffix=".txt"/>
 
-      <Context docBase="primera_prueba" path="/primera_prueba" reloadable="true" source="org.eclipse.jst.jee.server:primera_prueba"/><Context docBase="jsp_proyecto" path="/jsp_proyecto" reloadable="true" source="org.eclipse.jst.jee.server:jsp_proyecto"/><Context docBase="prueba_servlet" path="/prueba_servlet" reloadable="true" source="org.eclipse.jst.jee.server:prueba_servlet"/><Context docBase="proyecto_servlets" path="/proyecto_servlets" reloadable="true" source="org.eclipse.jst.jee.server:proyecto_servlets"/></Host>
+      <Context docBase="primera_prueba" path="/primera_prueba" reloadable="true" source="org.eclipse.jst.jee.server:primera_prueba"/><Context docBase="prueba_servlet" path="/prueba_servlet" reloadable="true" source="org.eclipse.jst.jee.server:prueba_servlet"/><Context docBase="proyecto_servlets" path="/proyecto_servlets" reloadable="true" source="org.eclipse.jst.jee.server:proyecto_servlets"/><Context docBase="jsp_proyecto" path="/jsp_proyecto" reloadable="true" source="org.eclipse.jst.jee.server:jsp_proyecto"/></Host>
     </Engine>
   </Service>
 </Server>
