@@ -53,7 +53,7 @@ public class RegistroUsers extends HttpServlet {
 		map.put("lola3", "lola3");
 		map.put("", "");// he añadido este usuario y contraseña para que sea más rápido de probar
 
-		// Si coinciden nombre y contraseña y no hay una sesión iniciada se habrá
+		// Si coinciden nombre y contraseña y no hay un nombre para sesión iniciada se habrá
 		// producido un inicio de sesión correcto
 		if (map.containsKey(nombreUser) && map.get(nombreUser).equals(passwordUser)
 				&& session.getAttribute("nombreUser") == null) {// isNew
