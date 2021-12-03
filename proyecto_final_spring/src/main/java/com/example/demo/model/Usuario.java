@@ -4,9 +4,23 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
+
+/**
+ * Creamos una serie de atributos para definir al usuario. Se han añadido
+ * algunas validaciones para que el formulario muestre errores de validación y
+ * no solo de registro.
+ * 
+ * @author laura
+ *
+ */
 public class Usuario {
 
 	public static int GENERADOR_COD = 2;
+	@Min(1)
 	private long id;
 	private String nombre;
 	private String dni;
@@ -14,7 +28,18 @@ public class Usuario {
 	private String telefono;
 	private String direccion;
 	private List<Pedido> pedidos;
+	@NotEmpty
+	@Size(min = 3, max = 20, message = "El nombre debe tener más de 3 letras y menos de 20.")
 	private String nombreUser;
+	public static int getGENERADOR_COD() {
+		return GENERADOR_COD;
+	}
+
+	public static void setGENERADOR_COD(int gENERADOR_COD) {
+		GENERADOR_COD = gENERADOR_COD;
+	}
+
+	@Pattern(regexp = "^[a-zA-Z]\\w{3,14}$", message = "Debe contener letras seguidas de números")
 	private String contrasena;
 
 	/**
@@ -46,18 +71,18 @@ public class Usuario {
 	}
 
 	/**
-	 * Constructor vacío para pasárselo dentro del getMapping del login
+	 * Constructor vacío para pasárselo dentro del getMapping del login.
 	 */
 	public Usuario() {
 		this.id = GENERADOR_COD++;
 	}
-	
+
 	public Usuario(String nombreUser, String contrasena) {
 		this.id = GENERADOR_COD++;
 		this.nombreUser = nombreUser;
 		this.contrasena = contrasena;
 	}
-	
+
 	public long getId() {
 		return id;
 	}

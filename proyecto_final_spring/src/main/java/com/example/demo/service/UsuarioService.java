@@ -14,8 +14,9 @@ public class UsuarioService {
 
 	/**
 	 * Método para añadir un usuario a nuestra lista de usuarios.
+	 * 
 	 * @param e
-	 * @return
+	 * @return usuario añadido
 	 */
 	public Usuario add(Usuario e) {
 		usuarios.add(e);
@@ -24,6 +25,7 @@ public class UsuarioService {
 
 	/**
 	 * Método para que nos devuelva todos nuestros usuarios.
+	 * 
 	 * @return lista de usuarios creados hasta el momento
 	 */
 	public List<Usuario> findAll() {
@@ -36,32 +38,32 @@ public class UsuarioService {
 	 */
 	@PostConstruct
 	public void init() {
-		usuarios.addAll(Arrays.asList(new Usuario("pepi", "pepi"), (new Usuario("loli", "loli"))));
+		usuarios.addAll(Arrays.asList(new Usuario("pepi", "pepi123"), (new Usuario("loli", "loli123"))));
 	}
 
 	/**
 	 * Método para encontrar al usuario desde el controlador del usuario por su id
 	 * una vez que se cree, es decir, en el postConstruct cuando le haya dado al
-	 * submit. Devuelve al usuario si lo encuentra y devolverá null en caso
-	 * contrario.
-	 * 
+	 * submit. Devuelve el usuario para confirmar que el usuario está registrado
+	 * puesto que hacemos las comprobaciones en este mismo método.
 	 * @param id
-	 * @return
+	 * @return usuario introducido si lo encuentra o null en caso contrario
 	 */
-	public Usuario findById(long id) {
-		Usuario result = null;
+	public Usuario findByNameAndPassword(Usuario usuario) {
 		boolean encontrado = false;
+		Usuario usuario1 = null;
 		int i = 0;
 		while (!encontrado && i < usuarios.size()) {
-			if (usuarios.get(i).getId() == id) {
+			if ((usuarios.get(i).getNombreUser().equals(usuario.getNombreUser()))
+					&& (usuarios.get(i).getContrasena().equals(usuario.getContrasena()))) {
 				encontrado = true;
-				result = usuarios.get(i);
+				usuario1 = usuarios.get(i);
 			} else {
 				i++;
 			}
 		}
 
-		return result;
+		return usuario1;
 	}
 
 }

@@ -1,10 +1,18 @@
 <!DOCTYPE html>
-<html>
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
-<meta charset="UTF-8">
-<title>Insert title here</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>Area personal</title>
 </head>
 <body>
+	<form action="#" th:action="@{/menuPersonal/submit}" th:object="${usuario}"
+		method="post">
+		<h1 th:text="Area personal"></h1>
+		
+		
+		
+	</form>
+
 
 </body>
 </html>
