@@ -5,14 +5,15 @@
 <title>Area personal</title>
 </head>
 <body>
-	<form action="#" th:action="@{/menuPersonal/submit}" th:object="${usuario}"
-		method="post">
-		<h1 th:text="Area personal"></h1>
-		
-		
-		
+	<h1>Area personal</h1>
+	<form action="#" th:action="@{/menuPersonal/submit}"
+		 method="post" th:object="${usuario}">
+		<input type="submit" name="pedidos"
+			value="Consultar pedidos realizados" /> 
+		<input type="submit"
+			name="newPedido" value="Realizar un nuevo pedido" />
 	</form>
-
-
+	
+	
 </body>
 </html>

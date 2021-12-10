@@ -13,6 +13,13 @@ public class UsuarioService {
 	private List<Usuario> usuarios = new ArrayList<>();
 
 	/**
+	 * Establecemos los siguiente atributos para comprobar los inicios de sesión y
+	 * poder acceder siempre al id del usuario y, así, recuperarlo.
+	 */
+	private boolean logueado = false;
+	private long userId = 0;
+
+	/**
 	 * Método para añadir un usuario a nuestra lista de usuarios.
 	 * 
 	 * @param e
@@ -21,6 +28,30 @@ public class UsuarioService {
 	public Usuario add(Usuario e) {
 		usuarios.add(e);
 		return e;
+	}
+
+	public List<Usuario> getUsuarios() {
+		return usuarios;
+	}
+
+	public long getUserId() {
+		return userId;
+	}
+
+	public void setUserId(long userId) {
+		this.userId = userId;
+	}
+
+	public void setUsuarios(List<Usuario> usuarios) {
+		this.usuarios = usuarios;
+	}
+
+	public boolean isLogueado() {
+		return logueado;
+	}
+
+	public void setLogueado(boolean logueado) {
+		this.logueado = logueado;
 	}
 
 	/**
@@ -46,6 +77,7 @@ public class UsuarioService {
 	 * una vez que se cree, es decir, en el postConstruct cuando le haya dado al
 	 * submit. Devuelve el usuario para confirmar que el usuario está registrado
 	 * puesto que hacemos las comprobaciones en este mismo método.
+	 * 
 	 * @param id
 	 * @return usuario introducido si lo encuentra o null en caso contrario
 	 */
@@ -56,6 +88,22 @@ public class UsuarioService {
 		while (!encontrado && i < usuarios.size()) {
 			if ((usuarios.get(i).getNombreUser().equals(usuario.getNombreUser()))
 					&& (usuarios.get(i).getContrasena().equals(usuario.getContrasena()))) {
+				encontrado = true;
+				usuario1 = usuarios.get(i);
+			} else {
+				i++;
+			}
+		}
+
+		return usuario1;
+	}
+	
+	public Usuario findById(long id) {
+		boolean encontrado = false;
+		Usuario usuario1 = null;
+		int i = 0;
+		while (!encontrado && i < usuarios.size()) {
+			if ((usuarios.get(i).getId() == id)) {
 				encontrado = true;
 				usuario1 = usuarios.get(i);
 			} else {

@@ -6,28 +6,31 @@ import java.util.Objects;
 
 public class Pedido {
 
-	public static int GENERADOR_COD = 2;
+	public static int generador_cod = 0;
 	private long id;
 	private List<Producto> productos;
 	private String direccion;
 
 	public Pedido(String direccion) {
-		this.id = GENERADOR_COD++;
+		this.id = generador_cod++;
 		this.productos = new ArrayList<Producto>();
 		this.direccion = direccion;
 	}
-	
+
 	public Pedido() {
-		this.id = GENERADOR_COD++;
+		this.id = generador_cod++;
 		this.productos = new ArrayList<Producto>();
 	}
 
-	public static int getGENERADOR_COD() {
-		return GENERADOR_COD;
-	}
-
-	public static void setGENERADOR_COD(int gENERADOR_COD) {
-		GENERADOR_COD = gENERADOR_COD;
+	/**
+	 * Creo este constructor para poder introducir los productos ya seteados por el
+	 * usuario en el formulario de creación de pedido.
+	 * 
+	 * @param productos
+	 */
+	public Pedido(List<Producto> productos) {
+		this.id = generador_cod++;
+		this.productos = new ArrayList<Producto>();
 	}
 
 	public long getId() {
@@ -75,7 +78,5 @@ public class Pedido {
 	public String toString() {
 		return "Pedido [id=" + id + ", productos=" + productos + ", direccion=" + direccion + "]";
 	}
-	
-	
 
 }

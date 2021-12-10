@@ -1,9 +1,9 @@
 package com.example.demo.model;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Pattern;
@@ -19,7 +19,7 @@ import javax.validation.constraints.Size;
  */
 public class Usuario {
 
-	public static int GENERADOR_COD = 2;
+	public static int GENERADOR_COD = 1;
 	@Min(1)
 	private long id;
 	private String nombre;
@@ -38,8 +38,8 @@ public class Usuario {
 	public static void setGENERADOR_COD(int gENERADOR_COD) {
 		GENERADOR_COD = gENERADOR_COD;
 	}
-
-	@Pattern(regexp = "^[a-zA-Z]\\w{3,14}$", message = "Debe contener letras seguidas de números")
+	@NotEmpty
+	@Pattern(regexp = "^[a-zA-Z]\\w{3,14}$", message = "Debe contener letras seguidas de números. Longitud mínima de 4.")
 	private String contrasena;
 
 	/**
@@ -66,6 +66,8 @@ public class Usuario {
 		this.telefono = telefono;
 		this.direccion = direccion;
 		this.pedidos = new ArrayList<Pedido>();
+		pedidos.addAll(Arrays.asList(new Pedido("Calle Luna, 45, Fantasyland, La Luna"),
+				(new Pedido("Av. Constitucón, 73, Rojo, Redland"))));
 		this.nombreUser = nombreUser;
 		this.contrasena = contrasena;
 	}
@@ -75,11 +77,17 @@ public class Usuario {
 	 */
 	public Usuario() {
 		this.id = GENERADOR_COD++;
+		this.pedidos = new ArrayList<Pedido>();
+		pedidos.addAll(Arrays.asList(new Pedido("Calle Luna, 45, Fantasyland, La Luna"),
+				(new Pedido("Av. Constitucón, 73, Rojo, Redland"))));
 	}
 
 	public Usuario(String nombreUser, String contrasena) {
 		this.id = GENERADOR_COD++;
 		this.nombreUser = nombreUser;
+		this.pedidos = new ArrayList<Pedido>();
+		pedidos.addAll(Arrays.asList(new Pedido("Calle Luna, 45, Fantasyland, La Luna"),
+				(new Pedido("Av. Constitucón, 73, Rojo, Redland"))));
 		this.contrasena = contrasena;
 	}
 
@@ -178,5 +186,6 @@ public class Usuario {
 				+ telefono + ", direccion=" + direccion + ", pedidos=" + pedidos + ", nombreUser=" + nombreUser
 				+ ", contrasena=" + contrasena + "]";
 	}
+
 
 }

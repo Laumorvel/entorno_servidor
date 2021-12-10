@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>Consulta tus pedidos</title>
+</head>
+<body>
+	<h1>Pedidos realizados</h1>
+	<table>
+		<div th:if="${not listaPedidos.empty}"><!-- Si la lista no está vacía listará los pedidos -->
+		<thead>
+			<tr>
+				<th>ID</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr th:each="pedido : ${listaPedidos}">
+				<!-- añadir que si no hay pedidos, lo diga -->
+				<td th:text="${pedido.id}" />
+				<td><a th:href="@{/pedido/editar/{id}(id=${pedido.id})}">Editar</a></td>
+				<td><a th:href="@{/pedido/borrar/{id}(id=${pedido.id})}">Borrar</a></td>
+			</tr>
+		</tbody>
+		</div>
+		<div th:if="${listaPedidos.empty}"><!-- Si la lista está vacía mostrará este texto -->
+		<tbody>
+		<h3>Aún no has realizado ningún pedido</h3>
+		</tbody>
+		</div>
+	</table>
+
+</body>
+</html>

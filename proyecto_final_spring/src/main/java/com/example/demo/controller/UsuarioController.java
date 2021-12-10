@@ -1,6 +1,5 @@
 package com.example.demo.controller;
 
-import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -9,8 +8,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import com.example.demo.model.Usuario;
 import com.example.demo.service.UsuarioService;
 
@@ -24,22 +21,18 @@ public class UsuarioController {
 	private UsuarioService servicio;
 
 	/**
-	 * Contiene la sesión generada por cada usuario
-	 */
-	@Autowired
-	private HttpSession sesion;
-
-	/**
 	 * En caso de no estar registrado el usuario en la aplicación, lo cual
 	 * comprobaremos gracias a la sesión, se guiará al login. En caso contrario y,
 	 * además, no tener coincidir el usuario con la contraseña, nos dirigiría al
-	 * login pero con un mensaje de error.
+	 * login pero con un mensaje de error. Se añade /login/submit para que entre por
+	 * esta dirección cuando entramos desde una dirección cuando el user no está
+	 * logueado.
 	 * 
 	 * @param login
 	 * @param model
 	 * @return
 	 */
-	@GetMapping({ "/login", "/" })
+	@GetMapping({ "/login", "/", "/login/submit", "/menuPersonal/submit", "/newProducto/submit" })
 	public String login(String login, Model model) {
 		model.addAttribute("usuario", new Usuario());
 		return "login";
@@ -50,22 +43,24 @@ public class UsuarioController {
 	 * para que este controlador no sea demasiado grande. Además se han incluído
 	 * aquí las comprobaciones de las validaciones que hemos establecido con
 	 * mensajes de error. Se ha utilizado la anotación requestparam para poder
-	 * traernos los valores de los inputs del formulario.
+	 * traernos los valores de los inputs del formulario. Se introduce al usuario en
+	 * la sesión para posteriormente recuperarlo y manejar sus pedidos.
 	 * 
 	 * @return devuelve al login si el usuario no es correo y al memú del usuario
 	 *         cuando los datos sean correctos
 	 */
-	@PostMapping("/login/submit")
-	@RequestMapping(value = "/login/submit", method = RequestMethod.POST)
+	@PostMapping(value = "/login/submit")
 	public String nuevoUser(Model model, @Valid @ModelAttribute("usuario") Usuario usuario,
 			BindingResult bindingResult) {
 		Usuario usuario1 = servicio.findByNameAndPassword(usuario);
-		if (usuario != null && !bindingResult.hasErrors()) {
+		if (usuario1 != null && !bindingResult.hasErrors()) {
 			model.addAttribute("usuario", usuario1);
-			sesion.setAttribute("usuario", usuario1);
+			servicio.setUserId(usuario1.getId());
+			servicio.setLogueado(true);// cambio el valor de este atributo para saber que se ha logueado un usuario
 			return "menuPersonal";
 		} else {
 			return "login";
 		}
 	}
+
 }
