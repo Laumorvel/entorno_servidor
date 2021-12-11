@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -35,16 +36,16 @@ public class PedidosController {
 	 * utilizará este método cada vez que entremos en una vista nueva para comprobar
 	 * la sesión.
 	 */
-	public String compruebaSesion() {
+	public String compruebaSesion(String destino) {
 		if (!serviceUsuario.isLogueado()) {
 			return "login";
 		}
-		return "menuPersonal";
+		return destino;
 	}
 
 	@RequestMapping(value = "/menuPersonal/submit", method = RequestMethod.POST, params = "pedidos")
 	public String consultaPedidos(Model model, @ModelAttribute("usuario") Usuario usuario) {
-		compruebaSesion();
+		compruebaSesion("menuPersonal");
 		model.addAttribute("listaPedidos", servicePedido.encuentraPedidosDeUsuario());
 		return "consultaPedidos";
 	}
@@ -59,19 +60,12 @@ public class PedidosController {
 	 * @return
 	 */
 	@RequestMapping(value = "/menuPersonal/submit", method = RequestMethod.POST, params = "newPedido")
-	public String nuevoPedidoMenu(Model model, @ModelAttribute("usuario") Usuario usuario) {
-		compruebaSesion();
+	public String nuevoPedidoMenu(Model model) {
+		compruebaSesion("menuPersonal");
 		Usuario usuario1 = serviceUsuario.findById(serviceUsuario.getUserId());
 		model.addAttribute("usuario", usuario1);
 		model.addAttribute("listaProductos", serviceProducto.findAll());
 		return "newPedido";
-	}
-
-	public String compruebaSesionConsultaPedido() {
-		if (!serviceUsuario.isLogueado()) {
-			return "login";
-		}
-		return "menuPersonal";
 	}
 
 	/**
@@ -81,28 +75,85 @@ public class PedidosController {
 	 * introduciré la cantidad contenida dentro del array de cantidades que
 	 * conseguimos dentro del formulario. Inicializo i en 0 puesto y recorro los
 	 * productos puesto que la lista de productos y la de cantidades tiene la misma
-	 * longitud.
+	 * longitud. Marcamos entonces el pedido realizado por su id guardándolo en un
+	 * atributo del servicio de pedidos para, posteriormente, poder recuperar el
+	 * pedido con ese id del usuario logueado.
 	 * 
 	 * @param model
 	 * @param usuario
 	 * @param listaProductos
 	 */
 	@PostMapping("/newPedido/submit")
-	public void enviaListaDePedidos(Model model, @RequestParam("cantidad") Integer[] cantidades) {// para el envío, el
-																									// valor es el mismo
-																									// en el radio y se
-																									// recoge con un
-																									// String
-
+	public String enviaListaDePedidos(Model model, @RequestParam("cantidad") Integer[] cantidades,
+			@RequestParam("envio") String envio) {
+		compruebaSesion("newPedido");
+		
 		Pedido pedidoNuevo = new Pedido();
-		servicePedido.creaPedido(pedidoNuevo); // este método ya busca dentro al usuario logueado y le añade el pedido a
-												// su lista de pedidos automáticamente
+		servicePedido.setPedidoId(pedidoNuevo.getId());
 		int i = 0;
-		for (Producto producto : pedidoNuevo.getProductos()) {
-			producto.setCantidad(cantidades[i]);
-			i++;
+
+		//AÑADO LOS PRODUCTOS SELECCIONADOS AL PEDIDO
+		for (Producto producto : serviceProducto.getProductos()) {
+			if (cantidades[i] == null) {
+				i++;
+			} else {
+				producto.setCantidad(cantidades[i]);
+				pedidoNuevo.addProducto(producto);
+				i++;
+			}
 		}
 
+		//GESTIONO EL ENVÍO
+		if (envio.equals("domicilio")) {// si se indica que será en un domicilio diferente al del usuario o no se ha
+										// añadido dirección cuando se creó el usuario, se preguntará más adelante
+			pedidoNuevo.setDireccion(serviceUsuario.findById(serviceUsuario.getUserId()).getDireccion());
+			if(serviceUsuario.findById(serviceUsuario.getUserId()).getDireccion() == null) {
+				pedidoNuevo.setDireccion("nueva");
+			}
+		}else if(envio.equals("recoger")) {
+			pedidoNuevo.setDireccion("Recogida en tienda");
+		}else {
+			pedidoNuevo.setDireccion("nueva");
+		}
+
+		//AÑADO EL PEDIDO AL USUARIO LOGUEADO
+		servicePedido.creaPedido(pedidoNuevo); // este método ya busca dentro al usuario logueado y le añade el pedido a
+		model.addAttribute("listProductos",pedidoNuevo.getProductos());
+		
+		return "resumenPedido";
+	}
+	
+	
+
+	/**
+	 * Método para controlar el resumen del pedido. Es necesario enviar siempre el
+	 * envio puesto que si no, dará un null pointer exception al ser requerido
+	 * siempre en la plantilla thymeleaf. Si el nulo se mandará y se cambiará la
+	 * dirección de envío. Si no, solo se enviará pero no se mostrará en la
+	 * plantilla; aún así es necesario para la comprobación en la misma. Una vez
+	 * terminado, volvemos al menú personal donde se habrá añadido el nuevo pedido.
+	 * 
+	 * @param model
+	 * @param nuevaDireccion
+	 * @return
+	 */
+	@PostMapping("/resumenPedido/submit")
+	public String resumenPedido(Model model, @RequestParam("nuevaDireccion") String nuevaDireccion) {
+		compruebaSesion("resumenPedido");
+		Pedido pedido = servicePedido.encuentraPedidoDeUsuario(servicePedido.getPedidoId());
+		if(pedido.getDireccion().equals("nueva")) {
+			pedido.setDireccion(nuevaDireccion);
+		}
+		return "menuPersonal";
+	}
+	
+	
+	@PostMapping("/empleado/editar/{id}")
+	public String editaPedido(Model model, @PathVariable long id) {
+		Pedido pedidoAEditar = servicePedido.encuentraPedidoDeUsuario(id);
+				
+		
+		return "editarPedido";
 	}
 
 }

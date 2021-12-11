@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>Resumen</title>
+</head>
+<body>
+	<form action="#" th:action="@{/resumenPedido/submit}"
+		th:object="${listProductos}" method="post">
+		<h1>Resumen de pedido</h1>
+
+		<h2>Listado de pedidos marcados</h2>
+		<table>
+			<thead>
+				<tr>
+					<th>Nombre</th>
+					<th>Precio</th>
+					<th>Cantidad</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="producto : ${listProductos}">
+					<td th:text="${producto.nombre}" />
+					<td th:text="${producto.precio}" />
+					<td th:text="${producto.cantidad}"/>
+				</tr>
+				
+			</tbody>
+		</table>
+
+		<div th:if="${envio == null}">
+			<p>Indíquenos la dirección de envío:</p> <input type="text" name="nuevaDireccion" placeholder="Indique la dirección de envío"/>
+		</div>
+		<input type="submit" value="Aceptar" />
+	</form>
+</body>
+</html>

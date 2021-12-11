@@ -79,4 +79,8 @@ public class Pedido {
 		return "Pedido [id=" + id + ", productos=" + productos + ", direccion=" + direccion + "]";
 	}
 
+	public void addProducto(Producto producto) {
+		this.productos.add(producto);
+	}
+	
 }

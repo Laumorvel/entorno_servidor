@@ -2,11 +2,15 @@ package com.example.demo.service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
+
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpSession;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import com.example.demo.model.Pedido;
 import com.example.demo.model.Usuario;
 
@@ -17,10 +21,12 @@ public class PedidoService {
 
 	@Autowired
 	private UsuarioService serviceUser;
-	
+
+	/**
+	 * utilizo esta propiedad para que pueda reconocer el pedido nuevo que se ha
+	 * reliado y poder obtenerlo más fácilmente.
+	 */
 	private long pedidoId = 0;
-	
-	
 
 	public List<Pedido> getPedidos() {
 		return pedidos;
@@ -35,10 +41,11 @@ public class PedidoService {
 	}
 
 	/**
-	 * Cuando se cree un pedido llamaremos a este método y se seteará automáticamente.
+	 * Cuando se cree un pedido llamaremos a este método y se seteará
+	 * automáticamente.
 	 */
-	public void setPedidoId() {
-		pedidoId++;
+	public void setPedidoId(long pedidoRealizadoId) {
+		pedidoId = pedidoRealizadoId;
 	}
 
 	public Pedido add(Pedido e) {
@@ -54,8 +61,9 @@ public class PedidoService {
 	private HttpSession sesion;
 
 	/**
-	 * Genero unos datos estáticos para poder probar la aplicación.
-	 * Realmente lo estoy añadiendo en el constructor de la clase Usuario, en su lista de pedidos.
+	 * Genero unos datos estáticos para poder probar la aplicación. Realmente lo
+	 * estoy añadiendo en el constructor de la clase Usuario, en su lista de
+	 * pedidos.
 	 */
 	@PostConstruct
 	public void init() {
@@ -101,13 +109,34 @@ public class PedidoService {
 	}
 
 	/**
-	 * Método para crear un pedido para el usuario logueado. Añade un pedido a la lista de pedidos del usuario.
+	 * Uso el iterador para poder encontrar rápidamente un pedido concreto del
+	 * usuario logueado.
+	 * 
+	 * @param id
+	 * @return pedido buscado. null si no lo encuentra
+	 */
+	public Pedido encuentraPedidoDeUsuario(long id) {
+		Pedido buscado = null;
+		Usuario usuario = serviceUser.findById(serviceUser.getUserId());
+		Iterator<Pedido> it = usuario.getPedidos().iterator();
+		boolean result = false;
+		while (it.hasNext() && !result) {
+			Pedido ped = it.next();
+			if (ped.getId() == id) {
+				buscado = ped;
+				result = true;
+			}
+		}
+		return buscado;
+	}
+
+	/**
+	 * Método para crear un pedido para el usuario logueado. Añade un pedido a la
+	 * lista de pedidos del usuario.
 	 */
 	public void creaPedido(Pedido pedido) {
 		Usuario usuario = serviceUser.findById(serviceUser.getUserId());
 		usuario.getPedidos().add(pedido);
 	}
-	
-	
 
 }

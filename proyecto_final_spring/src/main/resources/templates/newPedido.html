@@ -9,7 +9,8 @@
 
 
 	<h1>Listado de productos</h1>
-	<form action="#" th:action="@{newPedido/submit}" th:object="${listaProductos}" method="post">
+	<form action="#" th:action="@{/newPedido/submit}"
+		th:object="${listaProductos}" method="post">
 		<table>
 			<thead>
 				<tr>
@@ -22,11 +23,19 @@
 				<tr th:each="producto : ${listaProductos}">
 					<td th:text="${producto.nombre}" />
 					<td th:text="${producto.precio}" />
-					<td><input type="number" placeholder=0 min=0 name="cantidad"/></td>
+					<td><input type="number" placeholder=0 min=0 name="cantidad" /></td>
 				</tr>
 			</tbody>
 		</table>
-		<input type="submit" value="Aceptar" />
+		<!-- Tanto si el envió se marca como a domicilio y no se ha guardado dirección en la cuenta del usuario 
+		como si se marca otra dirección, se preguntará por la dirección más adelante -->
+		
+		<h1>Modo de envío</h1>
+		<select name="envio" id="envio">
+			<option value="domicilio">Envío a domicilio</option>
+			<option value="recoger">Recogida en tienda</option>
+			<option value="cambioDireccion">Envío a otra dirección</option>
+		</select> <input type="submit" value="Aceptar" />
 	</form>
 
 </body>

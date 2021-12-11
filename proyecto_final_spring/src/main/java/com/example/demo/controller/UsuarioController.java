@@ -32,7 +32,7 @@ public class UsuarioController {
 	 * @param model
 	 * @return
 	 */
-	@GetMapping({ "/login", "/", "/login/submit", "/menuPersonal/submit", "/newProducto/submit" })
+	@GetMapping({ "/login", "/", "/login/submit", "/menuPersonal/submit", "/newProducto/submit", "resumenPedido/submit" })
 	public String login(String login, Model model) {
 		model.addAttribute("usuario", new Usuario());
 		return "login";
