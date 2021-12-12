@@ -79,7 +79,7 @@ public class PedidoService {
 	 * @return pedido concreto o null en caso de no encontrarlo.
 	 */
 	public Pedido findById(long id) {
-		Usuario usuario = (Usuario) sesion.getAttribute("usuario");
+		Usuario usuario = serviceUser.findById(serviceUser.getUserId());
 		boolean encontrado = false;
 		Pedido pedidoEncontrado = null;
 		int i = 0;
@@ -128,6 +128,21 @@ public class PedidoService {
 			}
 		}
 		return buscado;
+	}
+
+	public void borraPedidoDeUsuario(long id) {
+		Usuario usuario = serviceUser.findById(serviceUser.getUserId());
+		Iterator<Pedido> it = usuario.getPedidos().iterator();
+		boolean result = false;
+		int i = 0;
+		while (it.hasNext() && !result) {
+			Pedido ped = it.next();
+			if (ped.getId() == id) {
+				result = true;
+				usuario.getPedidos().remove(i);
+			}
+			i++;
+		}
 	}
 
 	/**

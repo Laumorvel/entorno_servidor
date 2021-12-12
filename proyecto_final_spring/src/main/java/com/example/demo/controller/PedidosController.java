@@ -1,8 +1,11 @@
 package com.example.demo.controller;
 
+import java.util.Iterator;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -87,12 +90,12 @@ public class PedidosController {
 	public String enviaListaDePedidos(Model model, @RequestParam("cantidad") Integer[] cantidades,
 			@RequestParam("envio") String envio) {
 		compruebaSesion("newPedido");
-		
+
 		Pedido pedidoNuevo = new Pedido();
 		servicePedido.setPedidoId(pedidoNuevo.getId());
 		int i = 0;
 
-		//AÑADO LOS PRODUCTOS SELECCIONADOS AL PEDIDO
+		// AÑADO LOS PRODUCTOS SELECCIONADOS AL PEDIDO
 		for (Producto producto : serviceProducto.getProductos()) {
 			if (cantidades[i] == null) {
 				i++;
@@ -103,27 +106,28 @@ public class PedidosController {
 			}
 		}
 
-		//GESTIONO EL ENVÍO
+		// GESTIONO EL ENVÍO
 		if (envio.equals("domicilio")) {// si se indica que será en un domicilio diferente al del usuario o no se ha
 										// añadido dirección cuando se creó el usuario, se preguntará más adelante
 			pedidoNuevo.setDireccion(serviceUsuario.findById(serviceUsuario.getUserId()).getDireccion());
-			if(serviceUsuario.findById(serviceUsuario.getUserId()).getDireccion() == null) {
+			model.addAttribute("envio", "domicilio");
+			if (serviceUsuario.findById(serviceUsuario.getUserId()).getDireccion() == null) {
 				pedidoNuevo.setDireccion("nueva");
+				model.addAttribute("envio", null);
 			}
-		}else if(envio.equals("recoger")) {
+		} else if (envio.equals("recoger")) {
 			pedidoNuevo.setDireccion("Recogida en tienda");
-		}else {
+			model.addAttribute("envio", "recogida");
+		} else {
 			pedidoNuevo.setDireccion("nueva");
+			model.addAttribute("envio", null);
 		}
 
-		//AÑADO EL PEDIDO AL USUARIO LOGUEADO
+		// AÑADO EL PEDIDO AL USUARIO LOGUEADO
 		servicePedido.creaPedido(pedidoNuevo); // este método ya busca dentro al usuario logueado y le añade el pedido a
-		model.addAttribute("listProductos",pedidoNuevo.getProductos());
-		
+		model.addAttribute("listProductos", pedidoNuevo.getProductos());
 		return "resumenPedido";
 	}
-	
-	
 
 	/**
 	 * Método para controlar el resumen del pedido. Es necesario enviar siempre el
@@ -132,28 +136,119 @@ public class PedidosController {
 	 * dirección de envío. Si no, solo se enviará pero no se mostrará en la
 	 * plantilla; aún así es necesario para la comprobación en la misma. Una vez
 	 * terminado, volvemos al menú personal donde se habrá añadido el nuevo pedido.
+	 * Le indicamos que el parámetro de la nueva dirección sea OPCIONAL en caso de
+	 * que haya una dirección establecida.
 	 * 
 	 * @param model
 	 * @param nuevaDireccion
 	 * @return
 	 */
 	@PostMapping("/resumenPedido/submit")
-	public String resumenPedido(Model model, @RequestParam("nuevaDireccion") String nuevaDireccion) {
+	public String resumenPedido(Model model,
+			@RequestParam(value = "nuevaDireccion", required = false) String nuevaDireccion) {
 		compruebaSesion("resumenPedido");
 		Pedido pedido = servicePedido.encuentraPedidoDeUsuario(servicePedido.getPedidoId());
-		if(pedido.getDireccion().equals("nueva")) {
+		if (pedido.getDireccion().equals("nueva")) {
 			pedido.setDireccion(nuevaDireccion);
 		}
+		model.addAttribute("listaPedidos", servicePedido.encuentraPedidosDeUsuario());
 		return "menuPersonal";
 	}
-	
-	
-	@PostMapping("/empleado/editar/{id}")
-	public String editaPedido(Model model, @PathVariable long id) {
+
+	/**
+	 * Al ser una url necesitamos un getMapping en vez de un PostMapping.
+	 * 
+	 * @param model
+	 * @param id
+	 * @return recogemos las modificaciones del usuario
+	 */
+	@GetMapping("/pedido/editar/{id}")
+	public String editarPedidoGet(Model model, @PathVariable long id) {
+		compruebaSesion("editarPedidos");
 		Pedido pedidoAEditar = servicePedido.encuentraPedidoDeUsuario(id);
-				
-		
+		servicePedido.setPedidoId(pedidoAEditar.getId());
+		model.addAttribute("listProductos", pedidoAEditar.getProductos());
+
 		return "editarPedido";
+	}
+
+	/**
+	 * Método para editar un pedido ya realizado. Le pasamos el id del pedido
+	 * seleccionado y accedemos a los productos pedidos. Damos la opción de editar
+	 * la cantidad de productos y el modo de envío. Estos datos volverán a guardarse
+	 * en el pedido seteando así sus atributos. Además, eliminamos el artículo que
+	 * ya no se quiera, es decir, que se haya puesto a 0. Se ha usado un ITERATOR
+	 * para no provocar un fallo en caso de que el usuario borre todos los productos
+	 * al editarlo, pues con un for no habría objetos que recorrer en la lista y
+	 * saltaría un error.
+	 * 
+	 * @param model
+	 * @param id
+	 * @param cantidades
+	 * @param envio
+	 * @return nos devuelve al menú del usuario.
+	 */
+	@PostMapping("/pedido/editar")
+	public String editaPedido(Model model, @RequestParam("cantidad") Integer[] cantidades,
+			@RequestParam("envio") String envio) {
+		compruebaSesion("editarPedidos");
+		Pedido pedidoAEditar = servicePedido.encuentraPedidoDeUsuario(servicePedido.getPedidoId());
+
+		// AÑADO LOS PRODUCTOS AL PEDIDO TRAS LAS POSIBLES MODIFICACIONES
+		int i = 0;
+		try {
+			
+		Iterator<Producto> it = pedidoAEditar.getProductos().iterator();
+		while (it.hasNext()) {
+			Producto producto = it.next();
+			if (cantidades[i] == null) {
+				i++;
+			} else if (cantidades[i] == 0) {
+				pedidoAEditar.getProductos().remove(i);
+				i++;
+			} else {
+				producto.setCantidad(cantidades[i]);
+				i++;
+			}
+		}
+		}catch (Exception e) {
+			
+		}
+
+		// GESTIONO EL ENVÍO
+		if (envio.equals("domicilio")) {// si se indica que será en un domicilio diferente al del usuario o no se ha
+										// añadido dirección cuando se creó el usuario, se preguntará más adelante
+			pedidoAEditar.setDireccion(serviceUsuario.findById(serviceUsuario.getUserId()).getDireccion());
+			if (serviceUsuario.findById(serviceUsuario.getUserId()).getDireccion() == null) {
+				pedidoAEditar.setDireccion("nueva");
+				model.addAttribute("envio", null);
+
+			}
+		} else if (envio.equals("recoger")) {
+			pedidoAEditar.setDireccion("Recogida en tienda");
+			model.addAttribute("envio", "recogida");
+		} else {
+			pedidoAEditar.setDireccion("nueva");
+			model.addAttribute("envio", null);
+
+		}
+		model.addAttribute("listProductos", pedidoAEditar.getProductos());
+		return "resumenPedido";
+	}
+
+	/**
+	 * Se usa el método del servicio para poder eliminar el pedido indicado. En
+	 * dicho método se consigue al usuario logueado y se elimina el pedido de su
+	 * lista de pedidos.
+	 * 
+	 * @param model
+	 * @param id
+	 * @return vuelve al menú personl del usuario
+	 */
+	@GetMapping("/pedido/borrar/{id}")
+	public String BorrarPedido(Model model, @PathVariable long id) {
+		servicePedido.borraPedidoDeUsuario(id);
+		return "menuPersonal";
 	}
 
 }
