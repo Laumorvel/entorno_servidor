@@ -81,6 +81,24 @@ public class Usuario {
 		pedidos.addAll(Arrays.asList(new Pedido("Calle Luna, 45, Fantasyland, La Luna"),
 				(new Pedido("Av. Constitucón, 73, Rojo, Redland"))));
 	}
+	
+	public Usuario(String nombreUser, String contrasena, String direccion) {
+		this.id = GENERADOR_COD++;
+		this.nombreUser = nombreUser;
+		this.pedidos = new ArrayList<Pedido>();
+		this.direccion = direccion;
+		this.contrasena = contrasena;
+	}
+	
+	public Usuario(String nombreUser, String contrasena, String direccion, String telefono, String email) {
+		this.id = GENERADOR_COD++;
+		this.nombreUser = nombreUser;
+		this.pedidos = new ArrayList<Pedido>();
+		this.direccion = direccion;
+		this.contrasena = contrasena;
+		this.telefono = telefono;
+		this.email = email;
+	}
 
 	public Usuario(String nombreUser, String contrasena) {
 		this.id = GENERADOR_COD++;

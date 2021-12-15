@@ -69,7 +69,9 @@ public class UsuarioService {
 	 */
 	@PostConstruct
 	public void init() {
-		usuarios.addAll(Arrays.asList(new Usuario("pepi", "pepi123"), (new Usuario("loli", "loli123"))));
+		usuarios.addAll(Arrays.asList(new Usuario("pepi", "pepi123", "Avenida Sol, 55, Málaga, 52145", "654875485", "pepi@gmail.com"),
+				(new Usuario("paqui", "paqui123", "Calle Diamante, 77, Sevilla, 41089", "656568978", "paquita@gmail.com")),
+				(new Usuario("loli", "loli123",null,"656568978", "paquita@gmail.com"))));
 	}
 
 	/**
@@ -97,7 +99,7 @@ public class UsuarioService {
 
 		return usuario1;
 	}
-	
+
 	public Usuario findById(long id) {
 		boolean encontrado = false;
 		Usuario usuario1 = null;

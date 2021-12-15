@@ -4,13 +4,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-
 import javax.annotation.PostConstruct;
-import javax.servlet.http.HttpSession;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import com.example.demo.model.Pedido;
 import com.example.demo.model.Usuario;
 
@@ -56,9 +52,6 @@ public class PedidoService {
 	public List<Pedido> findAll() {
 		return pedidos;
 	}
-
-	@Autowired
-	private HttpSession sesion;
 
 	/**
 	 * Genero unos datos estáticos para poder probar la aplicación. Realmente lo
@@ -120,7 +113,7 @@ public class PedidoService {
 		Usuario usuario = serviceUser.findById(serviceUser.getUserId());
 		Iterator<Pedido> it = usuario.getPedidos().iterator();
 		boolean result = false;
-		while (it.hasNext() && !result) {
+		while (it.hasNext() && !result && !usuario.getPedidos().isEmpty()) {
 			Pedido ped = it.next();
 			if (ped.getId() == id) {
 				buscado = ped;
@@ -147,11 +140,12 @@ public class PedidoService {
 
 	/**
 	 * Método para crear un pedido para el usuario logueado. Añade un pedido a la
-	 * lista de pedidos del usuario.
+	 * lista de pedidos del usuario. De esta manera, se almacena ordenado por fecha.
 	 */
 	public void creaPedido(Pedido pedido) {
 		Usuario usuario = serviceUser.findById(serviceUser.getUserId());
-		usuario.getPedidos().add(pedido);
+		usuario.getPedidos().add(0, pedido);
 	}
+
 
 }

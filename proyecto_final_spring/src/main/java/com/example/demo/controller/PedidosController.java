@@ -68,6 +68,7 @@ public class PedidosController {
 		Usuario usuario1 = serviceUsuario.findById(serviceUsuario.getUserId());
 		model.addAttribute("usuario", usuario1);
 		model.addAttribute("listaProductos", serviceProducto.findAll());
+
 		return "newPedido";
 	}
 
@@ -90,6 +91,7 @@ public class PedidosController {
 	public String enviaListaDePedidos(Model model, @RequestParam("cantidad") Integer[] cantidades,
 			@RequestParam("envio") String envio) {
 		compruebaSesion("newPedido");
+		double precioTotal = 0;
 
 		Pedido pedidoNuevo = new Pedido();
 		servicePedido.setPedidoId(pedidoNuevo.getId());
@@ -97,14 +99,21 @@ public class PedidosController {
 
 		// AÑADO LOS PRODUCTOS SELECCIONADOS AL PEDIDO
 		for (Producto producto : serviceProducto.getProductos()) {
-			if (cantidades[i] == null) {
+			if ((cantidades[i] == null) || (cantidades[i] == 0)) {
 				i++;
 			} else {
 				producto.setCantidad(cantidades[i]);
 				pedidoNuevo.addProducto(producto);
+				producto.setPrecioCantidad(Math.round((producto.getPrecio() * cantidades[i]) * 100d) / 100d);
+				precioTotal += Math.round((producto.getPrecio() * cantidades[i]) * 100d) / 100d;
 				i++;
 			}
 		}
+		if(pedidoNuevo.getProductos().isEmpty()) {
+			servicePedido.borraPedidoDeUsuario(pedidoNuevo.getId());
+			return "menuPersonal";
+		}
+		model.addAttribute("precioTotal", Math.round((precioTotal) * 100d) / 100d);
 
 		// GESTIONO EL ENVÍO
 		if (envio.equals("domicilio")) {// si se indica que será en un domicilio diferente al del usuario o no se ha
@@ -114,6 +123,8 @@ public class PedidosController {
 			if (serviceUsuario.findById(serviceUsuario.getUserId()).getDireccion() == null) {
 				pedidoNuevo.setDireccion("nueva");
 				model.addAttribute("envio", null);
+			} else {
+				model.addAttribute("domicilio", pedidoNuevo.getDireccion());
 			}
 		} else if (envio.equals("recoger")) {
 			pedidoNuevo.setDireccion("Recogida en tienda");
@@ -126,6 +137,8 @@ public class PedidosController {
 		// AÑADO EL PEDIDO AL USUARIO LOGUEADO
 		servicePedido.creaPedido(pedidoNuevo); // este método ya busca dentro al usuario logueado y le añade el pedido a
 		model.addAttribute("listProductos", pedidoNuevo.getProductos());
+		model.addAttribute("telefono", serviceUsuario.findById(serviceUsuario.getUserId()).getTelefono());
+		model.addAttribute("email", serviceUsuario.findById(serviceUsuario.getUserId()).getEmail());
 		return "resumenPedido";
 	}
 
@@ -139,9 +152,12 @@ public class PedidosController {
 	 * Le indicamos que el parámetro de la nueva dirección sea OPCIONAL en caso de
 	 * que haya una dirección establecida.
 	 * 
+	 * En el resumen de pedidos no muestro los precios puesto que se estarán
+	 * editando las cantidades.
+	 * 
 	 * @param model
 	 * @param nuevaDireccion
-	 * @return
+	 * @return vuelta al menú personal del usuario
 	 */
 	@PostMapping("/resumenPedido/submit")
 	public String resumenPedido(Model model,
@@ -156,7 +172,10 @@ public class PedidosController {
 	}
 
 	/**
-	 * Al ser una url necesitamos un getMapping en vez de un PostMapping.
+	 * Al ser una url necesitamos un getMapping en vez de un PostMapping. En caso de
+	 * que el usuario marque todos los pedidos a 0, se devolverá null en el método
+	 * encuentraPedidoDeUsuario, con lo que borramos directamente el pedido y no
+	 * pasamos por el resumen.
 	 * 
 	 * @param model
 	 * @param id
@@ -166,6 +185,10 @@ public class PedidosController {
 	public String editarPedidoGet(Model model, @PathVariable long id) {
 		compruebaSesion("editarPedidos");
 		Pedido pedidoAEditar = servicePedido.encuentraPedidoDeUsuario(id);
+		if (pedidoAEditar == null) {
+			servicePedido.borraPedidoDeUsuario(id);
+			return "menuPersonal";
+		}
 		servicePedido.setPedidoId(pedidoAEditar.getId());
 		model.addAttribute("listProductos", pedidoAEditar.getProductos());
 
@@ -193,27 +216,41 @@ public class PedidosController {
 			@RequestParam("envio") String envio) {
 		compruebaSesion("editarPedidos");
 		Pedido pedidoAEditar = servicePedido.encuentraPedidoDeUsuario(servicePedido.getPedidoId());
+		double precioTotal = 0;
 
 		// AÑADO LOS PRODUCTOS AL PEDIDO TRAS LAS POSIBLES MODIFICACIONES
 		int i = 0;
-		try {
-			
+		boolean result = false;
 		Iterator<Producto> it = pedidoAEditar.getProductos().iterator();
-		while (it.hasNext()) {
+		while (it.hasNext() && !result ) {
+			// Ha sido necesario añadir esta comprobación para no obtener un fallo en caso
+			// de que el usuario pusiera a 0 todos los productos del pedido. Con lo que se
+			// tendría que eliminar el mismo.
+			if (pedidoAEditar.getProductos().isEmpty()) {
+				servicePedido.borraPedidoDeUsuario(pedidoAEditar.getId());
+				return "menuPersonal";
+			}
 			Producto producto = it.next();
 			if (cantidades[i] == null) {
 				i++;
 			} else if (cantidades[i] == 0) {
 				pedidoAEditar.getProductos().remove(i);
 				i++;
+				try{
+					if(i+1==pedidoAEditar.getProductos().size()) {
+						result = true;
+					}
+				}catch(Exception e) {
+						
+				}
 			} else {
 				producto.setCantidad(cantidades[i]);
+				producto.setPrecioCantidad(Math.round((producto.getPrecio() * cantidades[i]) * 100d) / 100d);
+				precioTotal += Math.round((producto.getPrecio() * cantidades[i]) * 100d) / 100d;
 				i++;
 			}
 		}
-		}catch (Exception e) {
-			
-		}
+		model.addAttribute("precioTotal", Math.round((precioTotal) * 100d) / 100d);
 
 		// GESTIONO EL ENVÍO
 		if (envio.equals("domicilio")) {// si se indica que será en un domicilio diferente al del usuario o no se ha
@@ -233,6 +270,8 @@ public class PedidosController {
 
 		}
 		model.addAttribute("listProductos", pedidoAEditar.getProductos());
+		model.addAttribute("telefono", serviceUsuario.findById(serviceUsuario.getUserId()).getTelefono());
+		model.addAttribute("email", serviceUsuario.findById(serviceUsuario.getUserId()).getEmail());
 		return "resumenPedido";
 	}
 

@@ -9,6 +9,8 @@ public class Producto {
 	private String nombre;
 	private double precio;
 	private int cantidad;
+	private double precioCantidad;
+	private String img;
 
 	public Producto() {
 		this.id = generador_codigo++;
@@ -17,14 +19,16 @@ public class Producto {
 	/**
 	 * Cuando se creen productos estáticos para generar el catálogo, el número de
 	 * productos se inicializará a 0.
+	 * 
 	 * @param nombre
 	 * @param precio
 	 */
-	public Producto(String nombre, double precio) {
+	public Producto(String nombre, double precio, String img) {
 		this.id = generador_codigo++;
 		this.nombre = nombre;
 		this.precio = precio;
 		this.cantidad = 0;
+		this.img = img;
 	}
 
 	public double getPrecio() {
@@ -43,12 +47,28 @@ public class Producto {
 		this.cantidad = cantidad;
 	}
 
+	public String getImg() {
+		return img;
+	}
+
+	public void setImg(String img) {
+		this.img = img;
+	}
+
 	public long getId() {
 		return id;
 	}
 
 	public void setId(long id) {
 		this.id = id;
+	}
+
+	public double getPrecioCantidad() {
+		return precioCantidad;
+	}
+
+	public void setPrecioCantidad(double precioCantidad) {
+		this.precioCantidad = precioCantidad;
 	}
 
 	public String getNombre() {
