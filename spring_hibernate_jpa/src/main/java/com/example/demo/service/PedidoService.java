@@ -1,14 +1,13 @@
 package com.example.demo.service;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
-import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.example.demo.model.Pedido;
 import com.example.demo.model.Usuario;
+import com.example.demo.repository.PedidoRepository;
+import com.example.demo.repository.UsuarioRepository;
 
 @Service
 public class PedidoService {
@@ -17,13 +16,22 @@ public class PedidoService {
 
 	@Autowired
 	private UsuarioService serviceUser;
+	
+	@Autowired
+	private PedidoRepository repositorio;
+	
+	@Autowired
+	private UsuarioRepository usuarioRepo;
+	
+//		@Query("select e from usuario e where (e.id) == :userId") 
+//		Usuario findUserById(long userId);
 
 	/**
 	 * utilizo esta propiedad para que pueda reconocer el pedido nuevo que se ha
 	 * reliado y poder obtenerlo más fácilmente.
 	 */
 	private long pedidoId = 0;
-
+	
 	public List<Pedido> getPedidos() {
 		return pedidos;
 	}
@@ -44,47 +52,46 @@ public class PedidoService {
 		pedidoId = pedidoRealizadoId;
 	}
 
-	public Pedido add(Pedido e) {
-		pedidos.add(e);
-		return e;
+	public void add(Pedido e) {
+		repositorio.save(e);
 	}
 
 	public List<Pedido> findAll() {
-		return pedidos;
+		return repositorio.findAll();
 	}
 
-	/**
-	 * Genero unos datos estáticos para poder probar la aplicación. Realmente lo
-	 * estoy añadiendo en el constructor de la clase Usuario, en su lista de
-	 * pedidos.
-	 */
-	@PostConstruct
-	public void init() {
-		pedidos.addAll(Arrays.asList(new Pedido("Calle Luna, 45, Fantasyland, La Luna"),
-				(new Pedido("Av. Constitucón, 73, Rojo, Redland"))));
-	}
+//	/**
+//	 * Genero unos datos estáticos para poder probar la aplicación. Realmente lo
+//	 * estoy añadiendo en el constructor de la clase Usuario, en su lista de
+//	 * pedidos.
+//	 */
+//	@PostConstruct
+//	public void init() {
+//		pedidos.addAll(Arrays.asList(new Pedido("Calle Luna, 45, Fantasyland, La Luna"),
+//				(new Pedido("Av. Constitucón, 73, Rojo, Redland"))));
+//	}
 
-	/**
-	 * Método para poder encontrar un pedido por su id. Consultaremos los del
-	 * usuario logueado. Los pedidos generados arriba son para hacer pruebas.
-	 * 
-	 * @param id
-	 * @return pedido concreto o null en caso de no encontrarlo.
-	 */
-	public Pedido findById(long id) {
-		Usuario usuario = serviceUser.findById(serviceUser.getUserId());
-		boolean encontrado = false;
-		Pedido pedidoEncontrado = null;
-		int i = 0;
-		while (!encontrado && i < pedidos.size()) {
-			if (usuario.getPedidos().get(i).getId() == id) {
-				pedidoEncontrado = usuario.getPedidos().get(i);
-			} else {
-				i++;
-			}
-		}
-		return pedidoEncontrado;
-	}
+//	/**
+//	 * Método para poder encontrar un pedido por su id. Consultaremos los del
+//	 * usuario logueado. Los pedidos generados arriba son para hacer pruebas.
+//	 * 
+//	 * @param id
+//	 * @return pedido concreto o null en caso de no encontrarlo.
+//	 */
+//	public Pedido findById(long id) {
+//		Usuario usuario = usuarioRepo.getById(serviceUser.getUserId());
+//		boolean encontrado = false;
+//		Pedido pedidoEncontrado = null;
+//		int i = 0;
+//		while (!encontrado && i < pedidos.size()) {
+//			if (usuario.getPedidos().get(i).getId() == id) {
+//				pedidoEncontrado = usuario.getPedidos().get(i);
+//			} else {
+//				i++;
+//			}
+//		}
+//		return pedidoEncontrado;
+//	}
 
 	/**
 	 * No comprobamos si el usuario existe puesto que ya se está controlando la
@@ -96,9 +103,8 @@ public class PedidoService {
 	 * @param usuario
 	 * @return lista de pedidos del usuario
 	 */
-	public List<Pedido> encuentraPedidosDeUsuario() {
-		Usuario usuario = serviceUser.findById(serviceUser.getUserId());
-		return usuario.getPedidos();
+	public List<Pedido> encuentraPedidosDeUsuario(long userId) {
+		return repositorio.findByUsuarioId(userId);
 	}
 
 	/**
@@ -108,34 +114,12 @@ public class PedidoService {
 	 * @param id
 	 * @return pedido buscado. null si no lo encuentra
 	 */
-	public Pedido encuentraPedidoDeUsuario(long id) {
-		Pedido buscado = null;
-		Usuario usuario = serviceUser.findById(serviceUser.getUserId());
-		Iterator<Pedido> it = usuario.getPedidos().iterator();
-		boolean result = false;
-		while (it.hasNext() && !result && !usuario.getPedidos().isEmpty()) {
-			Pedido ped = it.next();
-			if (ped.getId() == id) {
-				buscado = ped;
-				result = true;
-			}
-		}
-		return buscado;
+	public Pedido encuentraPedidoDeUsuario(long pedidoId) {
+		return repositorio.getById(pedidoId);
 	}
 
 	public void borraPedidoDeUsuario(long id) {
-		Usuario usuario = serviceUser.findById(serviceUser.getUserId());
-		Iterator<Pedido> it = usuario.getPedidos().iterator();
-		boolean result = false;
-		int i = 0;
-		while (it.hasNext() && !result) {
-			Pedido ped = it.next();
-			if (ped.getId() == id) {
-				result = true;
-				usuario.getPedidos().remove(i);
-			}
-			i++;
-		}
+		repositorio.deleteById(id);
 	}
 
 	/**

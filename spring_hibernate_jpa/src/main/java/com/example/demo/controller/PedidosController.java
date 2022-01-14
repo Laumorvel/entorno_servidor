@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.example.demo.model.LineaPedido;
 import com.example.demo.model.Pedido;
 import com.example.demo.model.Producto;
 import com.example.demo.model.Usuario;
@@ -62,7 +63,7 @@ public class PedidosController {
 	@RequestMapping(value = "/menuPersonal/submit", method = RequestMethod.POST, params = "pedidos")
 	public String consultaPedidos(Model model, @ModelAttribute("usuario") Usuario usuario) {
 		compruebaSesion(menuPersonal);
-		model.addAttribute("listaPedidos", servicePedido.encuentraPedidosDeUsuario());
+		model.addAttribute("listaPedidos", servicePedido.encuentraPedidosDeUsuario(serviceUsuario.getUserId()));
 		return "consultaPedidos";
 	}
 
@@ -109,20 +110,23 @@ public class PedidosController {
 		Pedido pedidoNuevo = new Pedido();
 		servicePedido.setPedidoId(pedidoNuevo.getId());
 		int i = 0;
-
+		LineaPedido lp = new LineaPedido(pedidoNuevo);
+		//CREO UNA LINEA DE PEDIDO POR CADA PRODUCTO PEDIDO
 		// AÑADO LOS PRODUCTOS SELECCIONADOS AL PEDIDO
 		for (Producto producto : serviceProducto.getProductos()) {
 			if ((cantidades[i] == null) || (cantidades[i] == 0)) {
 				i++;
 			} else {
-				producto.setCantidad(cantidades[i]);
-				pedidoNuevo.addProducto(producto); 
-				producto.setPrecioCantidad(Math.round((producto.getPrecio() * cantidades[i]) * 100d) / 100d);
+				lp.setCantidad(cantidades[i]);
+				lp.setProducto(producto);
+				lp.setPrecioCantidad();
+				producto.addLineaPedido(lp);
+				pedidoNuevo.addLineaPedido(lp);
 				precioTotal += Math.round((producto.getPrecio() * cantidades[i]) * 100d) / 100d;
 				i++;
 			}
 		}
-		if(pedidoNuevo.getProductos().isEmpty()) {
+		if(pedidoNuevo.getLineasPedido().isEmpty()) {
 			servicePedido.borraPedidoDeUsuario(pedidoNuevo.getId());
 			return menuPersonal;
 		}
@@ -149,7 +153,7 @@ public class PedidosController {
 
 		// AÑADO EL PEDIDO AL USUARIO LOGUEADO
 		servicePedido.creaPedido(pedidoNuevo); // este método ya busca dentro al usuario logueado y le añade el pedido a
-		model.addAttribute(listProductos, pedidoNuevo.getProductos());
+		model.addAttribute("listLineasPedido", pedidoNuevo.getLineasPedido());
 		model.addAttribute("telefono", serviceUsuario.findById(serviceUsuario.getUserId()).getTelefono());
 		model.addAttribute("email", serviceUsuario.findById(serviceUsuario.getUserId()).getEmail());
 		return resumenPedido;
@@ -180,7 +184,7 @@ public class PedidosController {
 		if (pedido.getDireccion().equals(nueva)) {
 			pedido.setDireccion(nuevaDireccion);
 		}
-		model.addAttribute("listaPedidos", servicePedido.encuentraPedidosDeUsuario());
+		model.addAttribute("listaPedidos", servicePedido.encuentraPedidosDeUsuario(servicePedido.getPedidoId()));
 		return menuPersonal;
 	}
 

@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -48,7 +50,7 @@ public class Usuario {
 	private String direccion;
 	
 	// coincide con la propiedad usuario que se encuentra en la clase Pedido
-	@OneToMany
+	@OneToMany(cascade=CascadeType.ALL)
 	private List<Pedido> pedidos = new ArrayList<>();
 	
 	//@NotEmpty

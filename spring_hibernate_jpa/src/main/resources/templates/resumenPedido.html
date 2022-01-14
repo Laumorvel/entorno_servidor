@@ -30,11 +30,11 @@
 						</tr>
 					</thead>
 					<tbody>
-						<tr th:each="producto : ${listProductos}">
-							<td th:text="${producto.nombre}" />
-							<td th:text="${producto.precio}" />
-							<td th:text="${producto.cantidad}" />
-							<td th:text="${producto.precioCantidad}" />
+						<tr th:each="lineaPedido : ${listLineasPedido}">
+							<td th:text="${lineaPedido.nombreProducto}" />
+							<td th:text="${lineaPedido.precioProducto}" />
+							<td th:text="${lineaPedido.cantidad}" />
+							<td th:text="${lineaPedido.precioCantidad}" />
 						</tr>
 						<tr class="mt-5">
 							<th scope="col">Precio total</th>

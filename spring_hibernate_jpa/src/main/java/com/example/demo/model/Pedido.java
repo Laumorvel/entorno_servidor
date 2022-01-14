@@ -4,11 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
@@ -16,47 +18,50 @@ import javax.persistence.Table;
 @Table(name = "pedidos")
 public class Pedido {
 
-	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
-	
-	@OneToMany
-	private List<Producto> productos = new ArrayList<>();
-	
+
 	@Column(name = "direccion")
 	private String direccion;
 
+	@OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL)
+	private List<LineaPedido> lineasPedido = new ArrayList<>();
 
+	@ManyToOne
+	private Usuario usuario;
+	
 	public Pedido(String direccion) {
-		//this.id = id;
-		this.productos = new ArrayList<>();
+		// this.id = id;
 		this.direccion = direccion;
 	}
 
 	public Pedido() {
-		//this.id = id;
-		this.productos = new ArrayList<>();
 	}
 
-	
 	public long getId() {
 		return id;
+	}
+
+	public Usuario getUsuario() {
+		return usuario;
+	}
+
+	public void setUsuario(Usuario usuario) {
+		this.usuario = usuario;
 	}
 
 	public void setId(long id) {
 		this.id = id;
 	}
-	
-	
-	public List<Producto> getProductos() {
-		return productos;
+
+	public List<LineaPedido> getLineasPedido() {
+		return lineasPedido;
 	}
 
-	public void setProductos(List<Producto> productos) {
-		this.productos = productos;
+	public void setLineasPedido(List<LineaPedido> lineasPedido) {
+		this.lineasPedido = lineasPedido;
 	}
-
 
 	public String getDireccion() {
 		return direccion;
@@ -85,11 +90,11 @@ public class Pedido {
 
 	@Override
 	public String toString() {
-		return "Pedido [id=" + id + ", productos=" + productos + ", direccion=" + direccion + "]";
+		return "Pedido [id=" + id + ", direccion=" + direccion + "]";
 	}
 
-	public void addProducto(Producto producto) {
-		this.productos.add(producto);
+	public void addLineaPedido(LineaPedido lp) {
+		this.lineasPedido.add(lp);
 	}
 
 }

@@ -1,11 +1,15 @@
 package com.example.demo.model;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 @Entity
@@ -15,25 +19,22 @@ public class Producto {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
-	//public static int generador_codigo = 0;
-	
+	// public static int generador_codigo = 0;
+
 	@Column(name = "nombre")
 	private String nombre;
-	
+
 	@Column(name = "precio")
 	private double precio;
-	
-	@Column(name = "cantidad")
-	private int cantidad;
-	
-	@Column(name = "precioCantidad")
-	private double precioCantidad;
-	
+
 	@Column(name = "imagen")
 	private String img;
+	
+	@OneToMany(mappedBy = "producto")
+	private List<LineaPedido>lineasPedidos = new ArrayList<>();
 
 	public Producto() {
-		//this.id = id;
+		// this.id = id;
 	}
 
 	/**
@@ -44,14 +45,12 @@ public class Producto {
 	 * @param precio
 	 */
 	public Producto(String nombre, double precio, String img) {
-		//this.id = id;
+		// this.id = id;
 		this.nombre = nombre;
 		this.precio = precio;
-		this.cantidad = 0;
 		this.img = img;
 	}
 
-	
 	public double getPrecio() {
 		return precio;
 	}
@@ -60,16 +59,6 @@ public class Producto {
 		this.precio = precio;
 	}
 
-	
-	public int getCantidad() {
-		return cantidad;
-	}
-
-	public void setCantidad(int cantidad) {
-		this.cantidad = cantidad;
-	}
-
-	
 	public String getImg() {
 		return img;
 	}
@@ -78,7 +67,6 @@ public class Producto {
 		this.img = img;
 	}
 
-	
 	public long getId() {
 		return id;
 	}
@@ -87,16 +75,6 @@ public class Producto {
 		this.id = id;
 	}
 
-	
-	public double getPrecioCantidad() {
-		return precioCantidad;
-	}
-
-	public void setPrecioCantidad(double precioCantidad) {
-		this.precioCantidad = precioCantidad;
-	}
-
-	
 	public String getNombre() {
 		return nombre;
 	}
@@ -125,6 +103,10 @@ public class Producto {
 	@Override
 	public String toString() {
 		return "Producto [id=" + id + ", nombre=" + nombre + "]";
+	}
+	
+	public void addLineaPedido(LineaPedido lp) {
+		this.lineasPedidos.add(lp);
 	}
 
 }

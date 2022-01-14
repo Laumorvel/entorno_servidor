@@ -1,16 +1,19 @@
 package com.example.demo.service;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import javax.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.example.demo.model.Usuario;
+import com.example.demo.repository.UsuarioRepository;
 
 @Service
 public class UsuarioService {
 
 	private List<Usuario> usuarios = new ArrayList<>();
+
+	@Autowired
+	private UsuarioRepository repositorio;
 
 	/**
 	 * Establecemos los siguiente atributos para comprobar los inicios de sesión y
@@ -60,19 +63,19 @@ public class UsuarioService {
 	 * @return lista de usuarios creados hasta el momento
 	 */
 	public List<Usuario> findAll() {
-		return usuarios;
+		return repositorio.findAll();
 	}
 
-	/**
-	 * Le añadimos a la lista de usuarios un par de usuario de prueba para poder
-	 * probar la aplicación.
-	 */
-	@PostConstruct
-	public void init() {
-		usuarios.addAll(Arrays.asList(new Usuario("pepi", "pepi123", "Avenida Sol, 55, Málaga, 52145", "654875485", "pepi@gmail.com"),
-				(new Usuario("paqui", "paqui123", "Calle Diamante, 77, Sevilla, 41089", "656568978", "paquita@gmail.com")),
-				(new Usuario("loli", "loli123",null,"656568978", "paquita@gmail.com"))));
-	}
+//	/**
+//	 * Le añadimos a la lista de usuarios un par de usuario de prueba para poder
+//	 * probar la aplicación.
+//	 */
+//	@PostConstruct
+//	public void init() {
+//		usuarios.addAll(Arrays.asList(new Usuario("pepi", "pepi123", "Avenida Sol, 55, Málaga, 52145", "654875485", "pepi@gmail.com"),
+//				(new Usuario("paqui", "paqui123", "Calle Diamante, 77, Sevilla, 41089", "656568978", "paquita@gmail.com")),
+//				(new Usuario("loli", "loli123",null,"656568978", "paquita@gmail.com"))));
+//	}
 
 	/**
 	 * Método para encontrar al usuario desde el controlador del usuario por su id
@@ -87,11 +90,11 @@ public class UsuarioService {
 		boolean encontrado = false;
 		Usuario usuario1 = null;
 		int i = 0;
-		while (!encontrado && i < usuarios.size()) {
-			if ((usuarios.get(i).getNombreUser().equals(usuario.getNombreUser()))
-					&& (usuarios.get(i).getContrasena().equals(usuario.getContrasena()))) {
+		while (!encontrado && i < repositorio.findAll().size()) {
+			if ((repositorio.findAll().get(i).getNombreUser().equals(usuario.getNombreUser()))
+					&& (repositorio.findAll().get(i).getContrasena().equals(usuario.getContrasena()))) {
 				encontrado = true;
-				usuario1 = usuarios.get(i);
+				usuario1 = repositorio.findAll().get(i);
 			} else {
 				i++;
 			}
@@ -100,20 +103,15 @@ public class UsuarioService {
 		return usuario1;
 	}
 
+	/**
+	 * Ya no utilizo los usuarios que voy creando en el servicio, sino los que tengo
+	 * en el repositorio de usuarios
+	 * 
+	 * @param id
+	 * @return el usuario encontrado. Si no lo ha encontrado, devuleve null.
+	 */
 	public Usuario findById(long id) {
-		boolean encontrado = false;
-		Usuario usuario1 = null;
-		int i = 0;
-		while (!encontrado && i < usuarios.size()) {
-			if ((usuarios.get(i).getId() == id)) {
-				encontrado = true;
-				usuario1 = usuarios.get(i);
-			} else {
-				i++;
-			}
-		}
-
-		return usuario1;
+		return repositorio.getById(id);
 	}
 
 }
