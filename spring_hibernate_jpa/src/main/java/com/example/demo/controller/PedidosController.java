@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,6 +16,7 @@ import com.example.demo.model.LineaPedido;
 import com.example.demo.model.Pedido;
 import com.example.demo.model.Producto;
 import com.example.demo.model.Usuario;
+import com.example.demo.service.LineaPedidoService;
 import com.example.demo.service.PedidoService;
 import com.example.demo.service.ProductoService;
 import com.example.demo.service.UsuarioService;
@@ -33,8 +33,10 @@ public class PedidosController {
 	@Autowired
 	private ProductoService serviceProducto;
 	
+	@Autowired
+	private LineaPedidoService serviceLineaPedido;
+	
 	private String resumenPedido = "resumenPedido";
-	private String listProductos = "listProductos";
 	private String domicilio = "domicilio";
 	private String envioPedido = "envio";
 	private String menuPersonal = "menuPersonal";
@@ -61,7 +63,7 @@ public class PedidosController {
 	 * @return volvemos a la consulta de pedidos
 	 */
 	@RequestMapping(value = "/menuPersonal/submit", method = RequestMethod.POST, params = "pedidos")
-	public String consultaPedidos(Model model, @ModelAttribute("usuario") Usuario usuario) {
+	public String consultaPedidos(Model model) {
 		compruebaSesion(menuPersonal);
 		model.addAttribute("listaPedidos", servicePedido.encuentraPedidosDeUsuario(serviceUsuario.getUserId()));
 		return "consultaPedidos";
@@ -107,21 +109,32 @@ public class PedidosController {
 		compruebaSesion("newPedido");
 		double precioTotal = 0;
 
+		//PEDIDO
 		Pedido pedidoNuevo = new Pedido();
 		servicePedido.setPedidoId(pedidoNuevo.getId());
 		int i = 0;
-		LineaPedido lp = new LineaPedido(pedidoNuevo);
+		
 		//CREO UNA LINEA DE PEDIDO POR CADA PRODUCTO PEDIDO
 		// AÑADO LOS PRODUCTOS SELECCIONADOS AL PEDIDO
 		for (Producto producto : serviceProducto.getProductos()) {
+			//LINEA DE PEDIDO
+			LineaPedido lp = new LineaPedido();
+			
 			if ((cantidades[i] == null) || (cantidades[i] == 0)) {
 				i++;
 			} else {
 				lp.setCantidad(cantidades[i]);
 				lp.setProducto(producto);
 				lp.setPrecioCantidad();
-				producto.addLineaPedido(lp);
+				lp.setNombreProducto(producto.getNombre());
+				lp.setPrecioProducto();
+				
+				//Guardo la linea de pedido en la bbd
+				LineaPedido lpGuardado = serviceLineaPedido.creaLineaPedido(lp);
+				
+				//Añado la linea de pedido al nuevo pedido creado
 				pedidoNuevo.addLineaPedido(lp);
+				
 				precioTotal += Math.round((producto.getPrecio() * cantidades[i]) * 100d) / 100d;
 				i++;
 			}
@@ -152,10 +165,21 @@ public class PedidosController {
 		}
 
 		// AÑADO EL PEDIDO AL USUARIO LOGUEADO
-		servicePedido.creaPedido(pedidoNuevo); // este método ya busca dentro al usuario logueado y le añade el pedido a
-		model.addAttribute("listLineasPedido", pedidoNuevo.getLineasPedido());
+		// HE CAMBIADO LA IMPLEMENTACION DEL METODO DE CREAR PEDIDO PARA QUE DEVUELVA EL PEDIDO CREADO (COMO DEBE SER)
+		Usuario user = serviceUsuario.findById(serviceUsuario.getUserId());
+		pedidoNuevo.setUsuario(user);
+		Pedido guardado = servicePedido.creaPedido(pedidoNuevo); // este método ya busca dentro al usuario logueado y le añade el pedido 
+		
+		model.addAttribute("listLineasPedido", guardado.getLineasPedido());
+		
+		//OPCION 1
+		model.addAttribute("idPedido", guardado.getId());
+		//OPCION 2
+		//servicePedido.setPedidoId(pedidoNuevo.getId());
+		
 		model.addAttribute("telefono", serviceUsuario.findById(serviceUsuario.getUserId()).getTelefono());
 		model.addAttribute("email", serviceUsuario.findById(serviceUsuario.getUserId()).getEmail());
+
 		return resumenPedido;
 	}
 
@@ -178,9 +202,9 @@ public class PedidosController {
 	 */
 	@PostMapping("/resumenPedido/submit")
 	public String resumenPedido(Model model,
-			@RequestParam(value = "nuevaDireccion", required = false) String nuevaDireccion) {
+			@RequestParam(value = "nuevaDireccion", required = false) String nuevaDireccion, @RequestParam(value="idPedido") String idPedido) {
 		compruebaSesion("resumenPedido");
-		Pedido pedido = servicePedido.encuentraPedidoDeUsuario(servicePedido.getPedidoId());
+		Pedido pedido = servicePedido.encuentraPedidoDeUsuario(Long.parseLong(idPedido));
 		if (pedido.getDireccion().equals(nueva)) {
 			pedido.setDireccion(nuevaDireccion);
 		}
@@ -199,15 +223,16 @@ public class PedidosController {
 	 * @return recogemos las modificaciones del usuario
 	 */
 	@GetMapping("/pedido/editar/{id}")
-	public String editarPedidoGet(Model model, @PathVariable long id) {
+	public String editarPedidoGet(Model model, @PathVariable long id, @RequestParam(value="idPedido") String idPedido) {
 		compruebaSesion("editarPedidos");
-		Pedido pedidoAEditar = servicePedido.encuentraPedidoDeUsuario(id);
+		Pedido pedidoAEditar = servicePedido.encuentraPedidoDeUsuario(Long.parseLong(idPedido));
+		//Pedido pedidoAEditar = servicePedido.encuentraPedidoDeUsuario(id);
 		if (pedidoAEditar == null) {
 			servicePedido.borraPedidoDeUsuario(id);
 			return menuPersonal;
 		}
 		servicePedido.setPedidoId(pedidoAEditar.getId());
-		model.addAttribute(listProductos, pedidoAEditar.getProductos());
+		model.addAttribute("listLineasPedidos", pedidoAEditar.getLineasPedido());
 
 		return "editarPedido";
 	}
@@ -232,27 +257,28 @@ public class PedidosController {
 	public String editaPedido(Model model, @RequestParam("cantidad") Integer[] cantidades,
 			@RequestParam("envio") String envio) {
 		compruebaSesion("editarPedidos");
+		//Pedido pedidoAEditar = servicePedido.encuentraPedidoDeUsuario(Long.parseLong(idPedido));
 		Pedido pedidoAEditar = servicePedido.encuentraPedidoDeUsuario(servicePedido.getPedidoId());
 		double precioTotal = 0;
 
 		// AÑADO LOS PRODUCTOS AL PEDIDO TRAS LAS POSIBLES MODIFICACIONES
 		int i = 0;
-		Iterator<Producto> it = pedidoAEditar.getProductos().iterator();
+		Iterator<LineaPedido> it = pedidoAEditar.getLineasPedido().iterator();
 		while (it.hasNext()) {
 			// Ha sido necesario añadir esta comprobación para no obtener un fallo en caso
 			// de que el usuario pusiera a 0 todos los productos del pedido. Con lo que se
 			// tendría que eliminar el mismo.
-			if (pedidoAEditar.getProductos().isEmpty()) {
+			if (pedidoAEditar.getLineasPedido().isEmpty()) {
 				servicePedido.borraPedidoDeUsuario(pedidoAEditar.getId());
 				return menuPersonal;
 			}
-			Producto producto = it.next();
+			LineaPedido lp = it.next();
 			if (cantidades[i] == null) {
 				i++;
 			} else {
-				producto.setCantidad(cantidades[i]);
-				producto.setPrecioCantidad(Math.round((producto.getPrecio() * cantidades[i]) * 100d) / 100d);
-				precioTotal += Math.round((producto.getPrecio() * cantidades[i]) * 100d) / 100d;
+				lp.setCantidad(cantidades[i]);
+				lp.setPrecioCantidad();
+				precioTotal += lp.getPrecioCantidad();
 				i++;
 			}
 		}
@@ -275,7 +301,7 @@ public class PedidosController {
 			model.addAttribute(envioPedido, null);
 
 		}
-		model.addAttribute(listProductos, pedidoAEditar.getProductos());
+		model.addAttribute("listLineasPedido", pedidoAEditar.getLineasPedido());
 		model.addAttribute("telefono", serviceUsuario.findById(serviceUsuario.getUserId()).getTelefono());
 		model.addAttribute("email", serviceUsuario.findById(serviceUsuario.getUserId()).getEmail());
 		return resumenPedido;
@@ -291,7 +317,7 @@ public class PedidosController {
 	 * @return vuelve al menú personl del usuario
 	 */
 	@GetMapping("/pedido/borrar/{id}")
-	public String BorrarPedido(Model model, @PathVariable long id) {
+	public String BorrarPedido(Model model, @PathVariable long id, @RequestParam(value="idPedido") String idPedido) {
 		servicePedido.borraPedidoDeUsuario(id);
 		return menuPersonal;
 	}

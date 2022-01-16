@@ -2,6 +2,7 @@ package com.example.demo.model;
 
 import java.util.Objects;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -14,9 +15,6 @@ import javax.persistence.Table;
 @Table(name = "lineaPedidos")
 public class LineaPedido {
 
-	@ManyToOne
-	private Pedido pedido;
-
 	@Column(name = "cantidad")
 	private int cantidad;
 
@@ -24,7 +22,7 @@ public class LineaPedido {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long idLinea;
 
-	@ManyToOne
+	@ManyToOne(cascade = CascadeType.ALL)
 	private Producto producto;
 
 	@Column(name = "nombreProducto")
@@ -36,18 +34,14 @@ public class LineaPedido {
 	@Column(name = "precioCantidad")
 	private double precioCantidad;
 
-	public LineaPedido(Pedido pedido, int cantidad, Producto producto) {
-		this.pedido = pedido;
+	public LineaPedido(int cantidad, Producto producto) {
 		this.cantidad = cantidad;
 		this.producto = producto;
 	}
 
-	public LineaPedido(Pedido pedido) {
-		this.pedido = pedido;
-	}
-
 	public LineaPedido() {
 	}
+
 
 	public String getNombreProducto() {
 		return nombreProducto;
@@ -84,14 +78,6 @@ public class LineaPedido {
 	 */
 	public void setPrecioCantidad() {
 		this.precioCantidad = (Math.round((producto.getPrecio() * cantidad) * 100d) / 100d);
-	}
-
-	public Pedido getPedido() {
-		return pedido;
-	}
-
-	public void setPedido(Pedido pedido) {
-		this.pedido = pedido;
 	}
 
 	public int getCantidad() {
@@ -137,7 +123,7 @@ public class LineaPedido {
 
 	@Override
 	public String toString() {
-		return "LineaPedido [pedido=" + pedido + ", cantidad=" + cantidad + ", id=" + idLinea + ", producto=" + producto
+		return "LineaPedido [cantidad=" + cantidad + ", id=" + idLinea + ", producto=" + producto
 				+ "]";
 	}
 

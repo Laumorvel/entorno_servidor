@@ -5,23 +5,18 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.example.demo.model.Pedido;
-import com.example.demo.model.Usuario;
 import com.example.demo.repository.PedidoRepository;
-import com.example.demo.repository.UsuarioRepository;
 
 @Service
 public class PedidoService {
 
 	private List<Pedido> pedidos = new ArrayList<>();
 
-	@Autowired
-	private UsuarioService serviceUser;
-	
+//	@Autowired
+//	private UsuarioService serviceUser;
+//	
 	@Autowired
 	private PedidoRepository repositorio;
-	
-	@Autowired
-	private UsuarioRepository usuarioRepo;
 	
 //		@Query("select e from usuario e where (e.id) == :userId") 
 //		Usuario findUserById(long userId);
@@ -126,9 +121,10 @@ public class PedidoService {
 	 * Método para crear un pedido para el usuario logueado. Añade un pedido a la
 	 * lista de pedidos del usuario. De esta manera, se almacena ordenado por fecha.
 	 */
-	public void creaPedido(Pedido pedido) {
-		Usuario usuario = serviceUser.findById(serviceUser.getUserId());
-		usuario.getPedidos().add(0, pedido);
+	public Pedido creaPedido(Pedido pedido) {
+		//Usuario usuario = serviceUser.findById(serviceUser.getUserId());
+		return repositorio.save(pedido);
+		//usuario.getPedidos().add(0, pedido);
 	}
 
 

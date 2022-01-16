@@ -1,7 +1,5 @@
 package com.example.demo.model;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 import javax.persistence.Column;
@@ -9,7 +7,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 @Entity
@@ -29,9 +26,6 @@ public class Producto {
 
 	@Column(name = "imagen")
 	private String img;
-	
-	@OneToMany(mappedBy = "producto")
-	private List<LineaPedido>lineasPedidos = new ArrayList<>();
 
 	public Producto() {
 		// this.id = id;
@@ -104,9 +98,6 @@ public class Producto {
 	public String toString() {
 		return "Producto [id=" + id + ", nombre=" + nombre + "]";
 	}
-	
-	public void addLineaPedido(LineaPedido lp) {
-		this.lineasPedidos.add(lp);
-	}
+
 
 }

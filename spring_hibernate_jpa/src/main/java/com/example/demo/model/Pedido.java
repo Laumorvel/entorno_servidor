@@ -25,7 +25,7 @@ public class Pedido {
 	@Column(name = "direccion")
 	private String direccion;
 
-	@OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL)
+	@OneToMany(cascade = CascadeType.ALL)
 	private List<LineaPedido> lineasPedido = new ArrayList<>();
 
 	@ManyToOne
@@ -35,6 +35,7 @@ public class Pedido {
 		// this.id = id;
 		this.direccion = direccion;
 	}
+
 
 	public Pedido() {
 	}

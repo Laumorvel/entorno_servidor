@@ -29,10 +29,10 @@
 				</tr>
 			</thead>
 			<tbody>
-				<tr th:each="producto : ${listProductos}">
-					<td th:text="${producto.nombre}" />
-					<td th:text="${producto.precio}" />
-					<td><input type="number" th:value="${producto.cantidad}" min=1 name="cantidad" /></td>
+				<tr th:each="lineaPedido : ${listLineasPedidos}">
+					<td th:text="${lineaPedido.nombreProducto}" />
+					<td th:text="${lineaPedido.precioProducto}" />
+					<td><input type="number" th:value="${lineaPedido.cantidad}" min=1 name="cantidad" /></td>
 				</tr>
 				
 			</tbody>

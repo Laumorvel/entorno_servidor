@@ -30,6 +30,7 @@
 						</tr>
 					</thead>
 					<tbody>
+						<input type="hidden" th:value="${idPedido}" name="idPedido"> 
 						<tr th:each="lineaPedido : ${listLineasPedido}">
 							<td th:text="${lineaPedido.nombreProducto}" />
 							<td th:text="${lineaPedido.precioProducto}" />

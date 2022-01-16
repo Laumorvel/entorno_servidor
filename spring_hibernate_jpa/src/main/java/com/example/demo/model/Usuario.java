@@ -1,17 +1,12 @@
 package com.example.demo.model;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 /**
@@ -27,42 +22,40 @@ import javax.persistence.Table;
 @Table(name = "usuarios")
 public class Usuario {
 
-	//public static int GENERADOR_COD = 1;
-	
+	// public static int GENERADOR_COD = 1;
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	//@Min(1)
+	// @Min(1)
 	private long id;
-	
+
 	@Column(name = "nombre", nullable = false)
 	private String nombre;
-	
+
 	@Column(name = "dni", nullable = false)
 	private String dni;
-	
+
 	@Column(name = "email", nullable = false)
 	private String email;
-	
+
 	@Column(name = "telefono")
 	private String telefono;
-	
+
 	@Column(name = "direccion")
 	private String direccion;
-	
-	// coincide con la propiedad usuario que se encuentra en la clase Pedido
-	@OneToMany(cascade=CascadeType.ALL)
-	private List<Pedido> pedidos = new ArrayList<>();
-	
-	//@NotEmpty
-	//@Size(min = 3, max = 20, message = "El nombre debe tener más de 3 letras y menos de 20.")
+
+	// @NotEmpty
+	// @Size(min = 3, max = 20, message = "El nombre debe tener más de 3 letras y
+	// menos de 20.")
 	@Column(name = "userName", nullable = false)
 	private String nombreUser;
 
-	//@NotEmpty
-	//@Pattern(regexp = "^[a-zA-Z]\\w{3,14}$", message = "Debe contener letras seguidas de números. Longitud mínima de 4.")
+	// @NotEmpty
+	// @Pattern(regexp = "^[a-zA-Z]\\w{3,14}$", message = "Debe contener letras
+	// seguidas de números. Longitud mínima de 4.")
 	@Column(name = "contrasena", nullable = false)
 	private String contrasena;
-	
+
 //	public static int getGENERADOR_COD() {
 //		return GENERADOR_COD;
 //	}
@@ -70,7 +63,6 @@ public class Usuario {
 //	public static void setGENERADOR_COD(int gENERADOR_COD) {
 //		GENERADOR_COD = gENERADOR_COD;
 //	}
-
 
 	/**
 	 * El id se autoaumenta para que se autogenere sólo. No se añade al constructor.
@@ -89,15 +81,12 @@ public class Usuario {
 	 */
 	public Usuario(String nombre, String dni, String email, String telefono, String direccion, String nombreUser,
 			String contrasena) {
-		//this.id = GENERADOR_COD++;
+		// this.id = GENERADOR_COD++;
 		this.nombre = nombre;
 		this.dni = dni;
 		this.email = email;
 		this.telefono = telefono;
 		this.direccion = direccion;
-		this.pedidos = new ArrayList<Pedido>();
-		pedidos.addAll(Arrays.asList(new Pedido("Calle Luna, 45, Fantasyland, La Luna"),
-				(new Pedido("Av. Constitucón, 73, Rojo, Redland"))));
 		this.nombreUser = nombreUser;
 		this.contrasena = contrasena;
 	}
@@ -106,10 +95,8 @@ public class Usuario {
 	 * Constructor vacío para pasárselo dentro del getMapping del login.
 	 */
 	public Usuario() {
-		//this.id = GENERADOR_COD++;
-		this.pedidos = new ArrayList<Pedido>();
-		pedidos.addAll(Arrays.asList(new Pedido("Calle Luna, 45, Fantasyland, La Luna"),
-				(new Pedido("Av. Constitucón, 73, Rojo, Redland"))));
+		// this.id = GENERADOR_COD++;
+
 	}
 
 	/**
@@ -120,9 +107,8 @@ public class Usuario {
 	 * @param direccion
 	 */
 	public Usuario(String nombreUser, String contrasena, String direccion) {
-		//this.id = GENERADOR_COD++;
+		// this.id = GENERADOR_COD++;
 		this.nombreUser = nombreUser;
-		this.pedidos = new ArrayList<Pedido>();
 		this.direccion = direccion;
 		this.contrasena = contrasena;
 	}
@@ -138,9 +124,8 @@ public class Usuario {
 	 * @param email
 	 */
 	public Usuario(String nombreUser, String contrasena, String direccion, String telefono, String email) {
-		//this.id = id;
+		// this.id = id;
 		this.nombreUser = nombreUser;
-		this.pedidos = new ArrayList<Pedido>();
 		this.direccion = direccion;
 		this.contrasena = contrasena;
 		this.telefono = telefono;
@@ -148,16 +133,11 @@ public class Usuario {
 	}
 
 	public Usuario(String nombreUser, String contrasena) {
-		//this.id = id;
+		// this.id = id;
 		this.nombreUser = nombreUser;
-		this.pedidos = new ArrayList<Pedido>();
-		pedidos.addAll(Arrays.asList(new Pedido("Calle Luna, 45, Fantasyland, La Luna"),
-				(new Pedido("Av. Constitucón, 73, Rojo, Redland"))));
 		this.contrasena = contrasena;
 	}
 
-	
-	
 	public long getId() {
 		return id;
 	}
@@ -166,7 +146,6 @@ public class Usuario {
 		this.id = id;
 	}
 
-	
 	public String getNombre() {
 		return nombre;
 	}
@@ -175,7 +154,6 @@ public class Usuario {
 		this.nombre = nombre;
 	}
 
-	
 	public String getDni() {
 		return dni;
 	}
@@ -184,7 +162,6 @@ public class Usuario {
 		this.dni = dni;
 	}
 
-	
 	public String getEmail() {
 		return email;
 	}
@@ -192,7 +169,6 @@ public class Usuario {
 	public void setEmail(String email) {
 		this.email = email;
 	}
-
 
 	public String getTelefono() {
 		return telefono;
@@ -202,7 +178,6 @@ public class Usuario {
 		this.telefono = telefono;
 	}
 
-	
 	public String getDireccion() {
 		return direccion;
 	}
@@ -211,16 +186,6 @@ public class Usuario {
 		this.direccion = direccion;
 	}
 
-	
-	public List<Pedido> getPedidos() {
-		return pedidos;
-	}
-
-	public void setPedidos(List<Pedido> pedidos) {
-		this.pedidos = pedidos;
-	}
-
-	
 	public String getNombreUser() {
 		return nombreUser;
 	}
@@ -229,7 +194,6 @@ public class Usuario {
 		this.nombreUser = nombreUser;
 	}
 
-	
 	public String getContrasena() {
 		return contrasena;
 	}
@@ -258,8 +222,8 @@ public class Usuario {
 	@Override
 	public String toString() {
 		return "Usuario [id=" + id + ", nombre=" + nombre + ", dni=" + dni + ", email=" + email + ", telefono="
-				+ telefono + ", direccion=" + direccion + ", pedidos=" + pedidos + ", nombreUser=" + nombreUser
-				+ ", contrasena=" + contrasena + "]";
+				+ telefono + ", direccion=" + direccion + ", nombreUser=" + nombreUser + ", contrasena=" + contrasena
+				+ "]";
 	}
 
 }
