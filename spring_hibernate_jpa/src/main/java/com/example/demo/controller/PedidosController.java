@@ -1,6 +1,8 @@
 package com.example.demo.controller;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -16,7 +18,7 @@ import com.example.demo.model.LineaPedido;
 import com.example.demo.model.Pedido;
 import com.example.demo.model.Producto;
 import com.example.demo.model.Usuario;
-import com.example.demo.service.LineaPedidoService;
+import com.example.demo.repository.PedidoRepository;
 import com.example.demo.service.PedidoService;
 import com.example.demo.service.ProductoService;
 import com.example.demo.service.UsuarioService;
@@ -34,7 +36,7 @@ public class PedidosController {
 	private ProductoService serviceProducto;
 	
 	@Autowired
-	private LineaPedidoService serviceLineaPedido;
+	private PedidoRepository repositorioPedido;
 	
 	private String resumenPedido = "resumenPedido";
 	private String domicilio = "domicilio";
@@ -129,8 +131,9 @@ public class PedidosController {
 				lp.setNombreProducto(producto.getNombre());
 				lp.setPrecioProducto();
 				
+				
 				//Guardo la linea de pedido en la bbd
-				LineaPedido lpGuardado = serviceLineaPedido.creaLineaPedido(lp);
+				//LineaPedido lpGuardado = serviceLineaPedido.creaLineaPedido(lp);
 				
 				//Añado la linea de pedido al nuevo pedido creado
 				pedidoNuevo.addLineaPedido(lp);
@@ -182,7 +185,9 @@ public class PedidosController {
 
 		return resumenPedido;
 	}
-
+	
+	
+	
 	/**
 	 * Método para controlar el resumen del pedido. Es necesario enviar siempre el
 	 * envio puesto que si no, dará un null pointer exception al ser requerido
@@ -223,17 +228,17 @@ public class PedidosController {
 	 * @return recogemos las modificaciones del usuario
 	 */
 	@GetMapping("/pedido/editar/{id}")
-	public String editarPedidoGet(Model model, @PathVariable long id, @RequestParam(value="idPedido") String idPedido) {
+	public String editarPedidoGet(Model model, @PathVariable long id) {
 		compruebaSesion("editarPedidos");
-		Pedido pedidoAEditar = servicePedido.encuentraPedidoDeUsuario(Long.parseLong(idPedido));
-		//Pedido pedidoAEditar = servicePedido.encuentraPedidoDeUsuario(id);
+		Pedido pedidoAEditar = servicePedido.encuentraPedidoDeUsuario(id);
 		if (pedidoAEditar == null) {
 			servicePedido.borraPedidoDeUsuario(id);
 			return menuPersonal;
 		}
-		servicePedido.setPedidoId(pedidoAEditar.getId());
+		//servicePedido.setPedidoId(pedidoAEditar.getId());
+		servicePedido.setPedidoId(id);
 		model.addAttribute("listLineasPedidos", pedidoAEditar.getLineasPedido());
-
+		model.addAttribute("idPedido", id);
 		return "editarPedido";
 	}
 
@@ -255,13 +260,14 @@ public class PedidosController {
 	 */
 	@PostMapping("/pedido/editar")
 	public String editaPedido(Model model, @RequestParam("cantidad") Integer[] cantidades,
-			@RequestParam("envio") String envio) {
+			@RequestParam("envio") String envio, @RequestParam(value="idPedido") String idPedido) {
 		compruebaSesion("editarPedidos");
-		//Pedido pedidoAEditar = servicePedido.encuentraPedidoDeUsuario(Long.parseLong(idPedido));
-		Pedido pedidoAEditar = servicePedido.encuentraPedidoDeUsuario(servicePedido.getPedidoId());
+		Pedido pedidoAEditar = servicePedido.encuentraPedidoDeUsuario(Long.parseLong(idPedido));
+		Pedido pedidoEditado = new Pedido(Long.parseLong(idPedido));
 		double precioTotal = 0;
 
 		// AÑADO LOS PRODUCTOS AL PEDIDO TRAS LAS POSIBLES MODIFICACIONES
+		List<LineaPedido> lineasPedido = new ArrayList<>();
 		int i = 0;
 		Iterator<LineaPedido> it = pedidoAEditar.getLineasPedido().iterator();
 		while (it.hasNext()) {
@@ -269,7 +275,7 @@ public class PedidosController {
 			// de que el usuario pusiera a 0 todos los productos del pedido. Con lo que se
 			// tendría que eliminar el mismo.
 			if (pedidoAEditar.getLineasPedido().isEmpty()) {
-				servicePedido.borraPedidoDeUsuario(pedidoAEditar.getId());
+				servicePedido.borraPedidoDeUsuario(Long.parseLong(idPedido));
 				return menuPersonal;
 			}
 			LineaPedido lp = it.next();
@@ -279,31 +285,45 @@ public class PedidosController {
 				lp.setCantidad(cantidades[i]);
 				lp.setPrecioCantidad();
 				precioTotal += lp.getPrecioCantidad();
+				//Crea un linea con todos los campos para guardarla en bbdd cuando cree el nuevo pedido a guardar y, como tiene el mismo id que uno ya creado, se actualizará cualquier cambio producido
+				LineaPedido lpEditada = new LineaPedido(lp.getCantidad(), lp.getIdLinea(), lp.getProducto(), lp.getNombreProducto(), lp.getPrecioProducto(), lp.getPrecioCantidad());
+				//lineaRepository.save(lpEditada);
+				lineasPedido.add(lpEditada);
 				i++;
 			}
 		}
+		
+		//Seteo las propiedades que tengo hasta ahora
+		pedidoEditado.setLineasPedido(lineasPedido);
+		Usuario user = serviceUsuario.findById(serviceUsuario.getUserId());
+		pedidoEditado.setUsuario(user);
+		
 		model.addAttribute("precioTotal", Math.round((precioTotal) * 100d) / 100d);
 
 		// GESTIONO EL ENVÍO
 		if (envio.equals("domicilio")) {// si se indica que será en un domicilio diferente al del usuario o no se ha
 										// añadido dirección cuando se creó el usuario, se preguntará más adelante
-			pedidoAEditar.setDireccion(serviceUsuario.findById(serviceUsuario.getUserId()).getDireccion());
-			if (serviceUsuario.findById(serviceUsuario.getUserId()).getDireccion() == null) {
-				pedidoAEditar.setDireccion(nueva);
+			pedidoEditado.setDireccion(user.getDireccion());
+			if (user.getDireccion() == null) {
+				pedidoEditado.setDireccion(nueva);
 				model.addAttribute(envioPedido, null);
 
 			}
 		} else if (envio.equals("recoger")) {
-			pedidoAEditar.setDireccion("Recogida en tienda");
+			pedidoEditado.setDireccion("Recogida en tienda");
 			model.addAttribute(envioPedido, "recogida");
 		} else {
-			pedidoAEditar.setDireccion(nueva);
+			pedidoEditado.setDireccion(nueva);
 			model.addAttribute(envioPedido, null);
 
 		}
-		model.addAttribute("listLineasPedido", pedidoAEditar.getLineasPedido());
-		model.addAttribute("telefono", serviceUsuario.findById(serviceUsuario.getUserId()).getTelefono());
-		model.addAttribute("email", serviceUsuario.findById(serviceUsuario.getUserId()).getEmail());
+		model.addAttribute("idPedido", pedidoEditado.getId());
+		model.addAttribute("listLineasPedido", pedidoEditado.getLineasPedido());
+		model.addAttribute("telefono", user.getTelefono());
+		model.addAttribute("email", user.getEmail());
+		
+		repositorioPedido.save(pedidoEditado);
+		
 		return resumenPedido;
 	}
 
@@ -317,7 +337,7 @@ public class PedidosController {
 	 * @return vuelve al menú personl del usuario
 	 */
 	@GetMapping("/pedido/borrar/{id}")
-	public String BorrarPedido(Model model, @PathVariable long id, @RequestParam(value="idPedido") String idPedido) {
+	public String BorrarPedido(Model model, @PathVariable long id) {
 		servicePedido.borraPedidoDeUsuario(id);
 		return menuPersonal;
 	}

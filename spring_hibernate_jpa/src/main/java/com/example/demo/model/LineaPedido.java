@@ -42,6 +42,15 @@ public class LineaPedido {
 	public LineaPedido() {
 	}
 
+	public LineaPedido(int cantidad, long idLinea, Producto producto, String nombreProducto, double precioProducto,
+			double precioCantidad) {
+		this.cantidad = cantidad;
+		this.idLinea = idLinea;
+		this.producto = producto;
+		this.nombreProducto = nombreProducto;
+		this.precioProducto = precioProducto;
+		this.precioCantidad = precioCantidad;
+	}
 
 	public String getNombreProducto() {
 		return nombreProducto;

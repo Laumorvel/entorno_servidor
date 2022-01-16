@@ -35,6 +35,10 @@ public class Pedido {
 		// this.id = id;
 		this.direccion = direccion;
 	}
+	
+	public Pedido(long id) {
+		this.id = id;
+	}
 
 
 	public Pedido() {
