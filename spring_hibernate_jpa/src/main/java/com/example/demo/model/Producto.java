@@ -16,7 +16,6 @@ public class Producto {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
-	// public static int generador_codigo = 0;
 
 	@Column(name = "nombre")
 	private String nombre;
@@ -28,7 +27,6 @@ public class Producto {
 	private String img;
 
 	public Producto() {
-		// this.id = id;
 	}
 
 	/**
@@ -39,7 +37,6 @@ public class Producto {
 	 * @param precio
 	 */
 	public Producto(String nombre, double precio, String img) {
-		// this.id = id;
 		this.nombre = nombre;
 		this.precio = precio;
 		this.img = img;

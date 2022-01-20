@@ -30,16 +30,14 @@ public class Pedido {
 
 	@ManyToOne
 	private Usuario usuario;
-	
+
 	public Pedido(String direccion) {
-		// this.id = id;
 		this.direccion = direccion;
 	}
-	
+
 	public Pedido(long id) {
 		this.id = id;
 	}
-
 
 	public Pedido() {
 	}

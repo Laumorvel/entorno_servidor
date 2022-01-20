@@ -2,7 +2,6 @@ package com.example.demo.model;
 
 import java.util.Objects;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -22,7 +21,7 @@ public class LineaPedido {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long idLinea;
 
-	@ManyToOne(cascade = CascadeType.ALL)
+	@ManyToOne
 	private Producto producto;
 
 	@Column(name = "nombreProducto")

@@ -118,7 +118,7 @@ public class PedidosController {
 		
 		//CREO UNA LINEA DE PEDIDO POR CADA PRODUCTO PEDIDO
 		// AÑADO LOS PRODUCTOS SELECCIONADOS AL PEDIDO
-		for (Producto producto : serviceProducto.getProductos()) {
+		for (Producto producto : serviceProducto.findAll()) {
 			//LINEA DE PEDIDO
 			LineaPedido lp = new LineaPedido();
 			
@@ -184,9 +184,18 @@ public class PedidosController {
 		model.addAttribute("email", serviceUsuario.findById(serviceUsuario.getUserId()).getEmail());
 
 		return resumenPedido;
+		//return "redirect:/resumenPedido";
 	}
 	
-	
+//	@GetMapping("/resumenPedido/submit/{id}")
+//	public String recogeGetPedido(Model model, @PathVariable long id) {
+//		model.addAttribute("idPedido", id);
+//		Pedido guardado = servicePedido.encuentraPedidoDeUsuario(id);
+//		model.addAttribute("telefono", serviceUsuario.findById(serviceUsuario.getUserId()).getTelefono());
+//		model.addAttribute("email", serviceUsuario.findById(serviceUsuario.getUserId()).getEmail());
+//		model.addAttribute("listLineasPedido", guardado.getLineasPedido());
+//		return resumenPedido;
+//	}
 	
 	/**
 	 * Método para controlar el resumen del pedido. Es necesario enviar siempre el
@@ -241,6 +250,7 @@ public class PedidosController {
 		model.addAttribute("idPedido", id);
 		return "editarPedido";
 	}
+	
 
 	/**
 	 * Método para editar un pedido ya realizado. Le pasamos el id del pedido
@@ -326,6 +336,7 @@ public class PedidosController {
 		
 		return resumenPedido;
 	}
+	
 
 	/**
 	 * Se usa el método del servicio para poder eliminar el pedido indicado. En

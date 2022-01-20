@@ -66,17 +66,6 @@ public class UsuarioService {
 		return repositorio.findAll();
 	}
 
-//	/**
-//	 * Le añadimos a la lista de usuarios un par de usuario de prueba para poder
-//	 * probar la aplicación.
-//	 */
-//	@PostConstruct
-//	public void init() {
-//		usuarios.addAll(Arrays.asList(new Usuario("pepi", "pepi123", "Avenida Sol, 55, Málaga, 52145", "654875485", "pepi@gmail.com"),
-//				(new Usuario("paqui", "paqui123", "Calle Diamante, 77, Sevilla, 41089", "656568978", "paquita@gmail.com")),
-//				(new Usuario("loli", "loli123",null,"656568978", "paquita@gmail.com"))));
-//	}
-
 	/**
 	 * Método para encontrar al usuario desde el controlador del usuario por su id
 	 * una vez que se cree, es decir, en el postConstruct cuando le haya dado al

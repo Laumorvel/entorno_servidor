@@ -1,6 +1,5 @@
 package com.example.demo.service;
 
-import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -10,42 +9,11 @@ import com.example.demo.repository.PedidoRepository;
 @Service
 public class PedidoService {
 
-	private List<Pedido> pedidos = new ArrayList<>();
-
-//	@Autowired
-//	private UsuarioService serviceUser;
-//	
 	@Autowired
 	private PedidoRepository repositorio;
-	
+
 //		@Query("select e from usuario e where (e.id) == :userId") 
 //		Usuario findUserById(long userId);
-
-	/**
-	 * utilizo esta propiedad para que pueda reconocer el pedido nuevo que se ha
-	 * reliado y poder obtenerlo más fácilmente.
-	 */
-	private long pedidoId = 0;
-	
-	public List<Pedido> getPedidos() {
-		return pedidos;
-	}
-
-	public void setPedidos(List<Pedido> pedidos) {
-		this.pedidos = pedidos;
-	}
-
-	public long getPedidoId() {
-		return pedidoId;
-	}
-
-	/**
-	 * Cuando se cree un pedido llamaremos a este método y se seteará
-	 * automáticamente.
-	 */
-	public void setPedidoId(long pedidoRealizadoId) {
-		pedidoId = pedidoRealizadoId;
-	}
 
 	public void add(Pedido e) {
 		repositorio.save(e);
@@ -54,39 +22,6 @@ public class PedidoService {
 	public List<Pedido> findAll() {
 		return repositorio.findAll();
 	}
-
-//	/**
-//	 * Genero unos datos estáticos para poder probar la aplicación. Realmente lo
-//	 * estoy añadiendo en el constructor de la clase Usuario, en su lista de
-//	 * pedidos.
-//	 */
-//	@PostConstruct
-//	public void init() {
-//		pedidos.addAll(Arrays.asList(new Pedido("Calle Luna, 45, Fantasyland, La Luna"),
-//				(new Pedido("Av. Constitucón, 73, Rojo, Redland"))));
-//	}
-
-//	/**
-//	 * Método para poder encontrar un pedido por su id. Consultaremos los del
-//	 * usuario logueado. Los pedidos generados arriba son para hacer pruebas.
-//	 * 
-//	 * @param id
-//	 * @return pedido concreto o null en caso de no encontrarlo.
-//	 */
-//	public Pedido findById(long id) {
-//		Usuario usuario = usuarioRepo.getById(serviceUser.getUserId());
-//		boolean encontrado = false;
-//		Pedido pedidoEncontrado = null;
-//		int i = 0;
-//		while (!encontrado && i < pedidos.size()) {
-//			if (usuario.getPedidos().get(i).getId() == id) {
-//				pedidoEncontrado = usuario.getPedidos().get(i);
-//			} else {
-//				i++;
-//			}
-//		}
-//		return pedidoEncontrado;
-//	}
 
 	/**
 	 * No comprobamos si el usuario existe puesto que ya se está controlando la
@@ -113,6 +48,24 @@ public class PedidoService {
 		return repositorio.getById(pedidoId);
 	}
 
+	/**
+	 * utilizo esta propiedad para que pueda reconocer el pedido nuevo que se ha
+	 * reliado y poder obtenerlo más fácilmente.
+	 */
+	private long pedidoId = 0;
+
+	public long getPedidoId() {
+		return pedidoId;
+	}
+
+	/**
+	 * Cuando se cree un pedido llamaremos a este método y se seteará
+	 * automáticamente.
+	 */
+	public void setPedidoId(long pedidoRealizadoId) {
+		pedidoId = pedidoRealizadoId;
+	}
+
 	public void borraPedidoDeUsuario(long id) {
 		repositorio.deleteById(id);
 	}
@@ -122,10 +75,7 @@ public class PedidoService {
 	 * lista de pedidos del usuario. De esta manera, se almacena ordenado por fecha.
 	 */
 	public Pedido creaPedido(Pedido pedido) {
-		//Usuario usuario = serviceUser.findById(serviceUser.getUserId());
 		return repositorio.save(pedido);
-		//usuario.getPedidos().add(0, pedido);
 	}
-
 
 }

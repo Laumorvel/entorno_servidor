@@ -1,16 +1,13 @@
 package com.example.demo;
 
 import java.util.Arrays;
-import java.util.logging.Logger;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-import com.example.demo.model.Pedido;
 import com.example.demo.model.Producto;
 import com.example.demo.model.Usuario;
-import com.example.demo.repository.PedidoRepository;
 import com.example.demo.repository.ProductoRepository;
 import com.example.demo.repository.UsuarioRepository;
 
