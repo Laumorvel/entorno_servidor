@@ -10,14 +10,14 @@ import com.example.demo.model.Producto;
 public class ProductoService {
 
 	String foto1 = "pngwing.com.png";
-	String foto2 = "/img/pngwing.com(1).png";
-	String foto3 = "/img/pngwing.com(2).png";
-	String foto4 = "/img/pngwing.com(3).png";
-	String foto5 = "/img/pngwing.com(4).png";
-	String foto6 = "/img/pngwing.com(5).png";
+	String foto2 = "../img/pngwing.com(1).png";
+	String foto3 = "../img/pngwing.com(2).png";
+	String foto4 = "../img/pngwing.com(3).png";
+	String foto5 = "../img/pngwing.com(4).png";
+	String foto6 = "../img/pngwing.com(5).png";
 
 	private List<Producto> productos = new ArrayList<>(Arrays.asList(
-			new Producto("Bombones rellenos de crema de fresa", 1.20, "/img/pngwing.com.png"),
+			new Producto("Bombones rellenos de crema de fresa", 1.20, "../img/pngwing.com.png"),
 			new Producto("Barrita de crema con caramelo", 1.80, foto2), new Producto("Toffee con caramelo salado", 1.50, foto3),
 			new Producto("Bombones rellenos de crema de avellanas", 1.20, foto4), new Producto("Muffin de cacao", 2.00, foto5),
 			new Producto("Brownie con pepitas de chocolate", 2.20, foto6)));
