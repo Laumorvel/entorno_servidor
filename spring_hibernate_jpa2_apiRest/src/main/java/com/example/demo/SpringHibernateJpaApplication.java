@@ -28,18 +28,10 @@ public class SpringHibernateJpaApplication {
 							(new Usuario("Loli Marín Martín","87458254y", "paquita@gmail.com","656568978","Calle Diamantino, 23, Sevilla, 847438", "loli", "loli123"))));
 		};
 	}
-//	
-//	@Bean
-//	CommandLineRunner initDataPedido (PedidoRepository repositorioPedido) {
-//		return(args) -> {
-//			repositorioPedido.saveAll(Arrays.asList(new Pedido("Calle Lalita, 34, Utrera")));
-//		};
-//	}
-//	
+
 	@Bean
 	CommandLineRunner initDataProducto (ProductoRepository repositorioProducto) {
 
-		//String foto1 = "/img/pngwing.com.png";
 		String foto2 = "/img/pngwing.com(1).png";
 		String foto3 = "/img/pngwing.com(2).png";
 		String foto4 = "/img/pngwing.com(3).png";

@@ -3,7 +3,9 @@ package com.example.demo.service;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import com.example.demo.model.Pedido;
+import com.example.demo.model.Usuario;
 import com.example.demo.repository.PedidoRepository;
 
 @Service
@@ -75,6 +77,14 @@ public class PedidoService {
 			return null;
 		}
 	}
+	
+	public Pedido findById(long pedido) {
+		return repositorio.findById(pedido).orElse(null);
+	}
+	
+	public Pedido addPedido(Pedido p) {
+		return repositorio.save(p);
+	}
 
 	public Pedido borraPedidoDeUsuario(long id) {
 		if(repositorio.existsById(id)) {
@@ -85,6 +95,16 @@ public class PedidoService {
 			return null;
 		}
 	}
+	
+	public Pedido delete (long id) {
+		if (repositorio.existsById(id)) {
+			Pedido p = repositorio.findById(id).get();
+			repositorio.deleteById(id);
+			return p;
+		} else {
+			return null;
+		}
+	}
 
 	/**
 	 * Método para crear un pedido para el usuario logueado. Añade un pedido a la
@@ -92,6 +112,13 @@ public class PedidoService {
 	 */
 	public Pedido creaPedido(Pedido pedido) {
 		return repositorio.save(pedido);
+	}
+	
+	public Pedido addPedidoUser(Usuario u) {
+		Pedido p = new Pedido(u);
+		p.setDireccion(u.getDireccion());
+		p.setUsuario(u);
+		 return repositorio.save(p);
 	}
 
 }

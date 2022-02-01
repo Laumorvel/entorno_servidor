@@ -41,6 +41,10 @@ public class Pedido {
 
 	public Pedido() {
 	}
+	
+	public Pedido(Usuario u) {
+		this.usuario = u;
+	}
 
 	public long getId() {
 		return id;

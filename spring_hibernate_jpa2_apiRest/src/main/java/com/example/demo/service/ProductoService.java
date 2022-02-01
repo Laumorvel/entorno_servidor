@@ -33,7 +33,7 @@ public class ProductoService {
 		return repositorio.findAll();
 	}
 
-	public Producto delete (Long id) {
+	public Producto delete (long id) {
 		if (repositorio.existsById(id)) {
 			Producto p = repositorio.findById(id).get();
 			repositorio.deleteById(id);
@@ -42,8 +42,12 @@ public class ProductoService {
 			return null;
 		}
 	}
+	
+	public Producto add(Producto p) {
+		return repositorio.save(p);
+	}
 
-	public Producto edit(Producto p, Long id) {
+	public Producto edit(Producto p, long id) {
 		if (repositorio.existsById(id)) {
 			p.setId(id);
 			return repositorio.save(p);
@@ -52,7 +56,7 @@ public class ProductoService {
 		}
 	}
 	
-	public Producto findById(Long id) {
+	public Producto findById(long id) {
 		return repositorio.findById(id).orElse(null);
 	}
 	

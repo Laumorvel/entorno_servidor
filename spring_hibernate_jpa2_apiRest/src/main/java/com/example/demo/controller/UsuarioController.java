@@ -1,23 +1,25 @@
 package com.example.demo.controller;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
-import javax.validation.Valid;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.demo.error.ApiError;
+import com.example.demo.error.UsuarioNotFoundException;
 import com.example.demo.model.Usuario;
 import com.example.demo.service.UsuarioService;
+import com.fasterxml.jackson.databind.JsonMappingException;
 
 @RestController
 public class UsuarioController {
@@ -29,75 +31,68 @@ public class UsuarioController {
 	private UsuarioService servicio;
 
 	@GetMapping("/usuario")
-	public List<Usuario> findAll() {
-		return servicio.findAll();
+	public ResponseEntity<List<Usuario>> findAll() {
+		List<Usuario> result = servicio.findAll();
+
+		return result.isEmpty() ? ResponseEntity.notFound().build() : ResponseEntity.ok(result);
 	}
-	
+
 	@GetMapping("/usuario/{id}")
 	public Usuario getById(@PathVariable long id) {
-		return servicio.findById(id);
+		Usuario result = servicio.findById(id);
+		if (result == null) {
+			throw new UsuarioNotFoundException(id);
+		} else {
+			return result;
+		}
 	}
-	
+
 	@PostMapping("/usuario")
-	public Usuario add(@RequestBody Usuario u) {
-		return servicio.add(u);
+	public ResponseEntity<Usuario> add(@RequestBody Usuario u) {
+		Usuario saved = servicio.add(u);
+		return ResponseEntity.status(HttpStatus.CREATED).body(saved);
 	}
-	
+
 	@PutMapping("/usuario/{id}")
 	public Usuario edit(@RequestBody Usuario u, @PathVariable long id) {
-		return servicio.edit(u, id);
-	}
-	
-	@DeleteMapping("/usuario/{id}")
-	public Usuario delete(@PathVariable long id) {
-		return servicio.delete(id);
-	}
-	
-	
-	//--------------------------------------------------------------------------------------------------------
+		Usuario result = servicio.edit(u, id);
 
-	/**
-	 * En caso de no estar registrado el usuario en la aplicación, lo cual
-	 * comprobaremos gracias a la sesión, se guiará al login. En caso contrario y,
-	 * además, no tener coincidir el usuario con la contraseña, nos dirigiría al
-	 * login pero con un mensaje de error. Se añade /login/submit para que entre por
-	 * esta dirección cuando entramos desde una dirección cuando el user no está
-	 * logueado.
-	 * 
-	 * @param login
-	 * @param model
-	 * @return
-	 */
-	@GetMapping({ "/login", "/", "/login/submit", "/menuPersonal/submit", "/newProducto/submit",
-			"/resumenPedido/submit", "/pedido/editar" })
-	public String login(String login, Model model) {
-		model.addAttribute("usuario", new Usuario());
-		return "login";
-	}
-
-	/**
-	 * Comprobar si el usuario está o no registrado gracias a un método del servicio
-	 * para que este controlador no sea demasiado grande. Además se han incluído
-	 * aquí las comprobaciones de las validaciones que hemos establecido con
-	 * mensajes de error. Se ha utilizado la anotación requestparam para poder
-	 * traernos los valores de los inputs del formulario. Se introduce al usuario en
-	 * la sesión para posteriormente recuperarlo y manejar sus pedidos.
-	 * 
-	 * @return devuelve al login si el usuario no es correo y al memú del usuario
-	 *         cuando los datos sean correctos
-	 */
-	@PostMapping(value = "/login/submit")
-	public String nuevoUser(Model model, @Valid @ModelAttribute("usuario") Usuario usuario,
-			BindingResult bindingResult) {
-		Usuario usuario1 = servicio.findByNameAndPassword(usuario);
-		if (usuario1 != null && !bindingResult.hasErrors()) {
-			model.addAttribute("usuario", usuario1);
-			servicio.setUserId(usuario1.getId());
-			servicio.setLogueado(true);// cambio el valor de este atributo para saber que se ha logueado un usuario
-			return "menuPersonal";
+		if (result == null) {
+			throw new UsuarioNotFoundException(id);
 		} else {
-			return "login";
+			return result;
 		}
+	}
+
+	@DeleteMapping("/usuario/{id}")
+	public ResponseEntity<?> delete(@PathVariable long id) {
+		Usuario result = servicio.delete(id);
+
+		if (result == null) {
+			throw new UsuarioNotFoundException(id);
+		} else {
+			return ResponseEntity.noContent().build();
+		}
+	}
+
+	@ExceptionHandler(UsuarioNotFoundException.class)
+	public ResponseEntity<ApiError> handleProductoNoEncontrado(UsuarioNotFoundException ex) {
+		ApiError apiError = new ApiError();
+		apiError.setEstado(HttpStatus.NOT_FOUND);
+		apiError.setFecha(LocalDateTime.now());
+		apiError.setMensaje(ex.getMessage());
+
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
+	}
+
+	@ExceptionHandler(JsonMappingException.class)
+	public ResponseEntity<ApiError> handleJsonMappingException(JsonMappingException ex) {
+		ApiError apiError = new ApiError();
+		apiError.setEstado(HttpStatus.BAD_REQUEST);
+		apiError.setFecha(LocalDateTime.now());
+		apiError.setMensaje(ex.getMessage());
+
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiError);
 	}
 
 }

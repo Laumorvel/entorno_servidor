@@ -1,19 +1,29 @@
 package com.example.demo.controller;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.demo.error.ApiError;
+import com.example.demo.error.PedidoNotFoundException;
+import com.example.demo.error.UsuarioNotFoundException;
 import com.example.demo.model.LineaPedido;
 import com.example.demo.model.Pedido;
 import com.example.demo.model.Producto;
@@ -22,31 +32,106 @@ import com.example.demo.repository.PedidoRepository;
 import com.example.demo.service.PedidoService;
 import com.example.demo.service.ProductoService;
 import com.example.demo.service.UsuarioService;
+import com.fasterxml.jackson.databind.JsonMappingException;
 
 @RestController
 public class PedidosController {
 
 	@Autowired
-	private PedidoService servicePedido;
+	private PedidoService servicio;
 
 	@Autowired
 	private UsuarioService serviceUsuario;
 
 	@Autowired
 	private ProductoService serviceProducto;
-	
+
 	@Autowired
 	private PedidoRepository repositorioPedido;
-	
+
 	private String resumenPedido = "resumenPedido";
 	private String domicilio = "domicilio";
 	private String envioPedido = "envio";
 	private String menuPersonal = "menuPersonal";
 	private String nueva = "nueva";
 
+	@GetMapping("/pedido")
+	public ResponseEntity<List<Pedido>> findAll() {
+		//comprobar el usuario
+		List<Pedido> result = servicio.findAll();
+
+		return result.isEmpty() ? ResponseEntity.notFound().build() : ResponseEntity.ok(result);
+	}
+
+	@GetMapping("/pedido/{id}")
+	public Pedido getById(@PathVariable long id) {
+		Pedido result = servicio.findById(id);
+
+		if (result == null) {
+			throw new PedidoNotFoundException(id);
+		} else {
+			return result;
+		}
+	}
+
+	/**
+	 * Se crea un pedido comprobando que el usuario exista.
+	 * @param u
+	 * @return
+	 */
+	@PostMapping("/pedido")
+	public ResponseEntity<Pedido> add(@RequestBody Usuario u) {
+		if(u.getNombreUser() == null) {
+			throw new UsuarioNotFoundException(u.getId());
+		}else {
+			return ResponseEntity.status(HttpStatus.CREATED).body(servicio.addPedidoUser(u));
+		}
+		
+	}
+
+	@PutMapping("/pedido/{id}")
+	public Pedido edit(@RequestBody Pedido p, @PathVariable long id) {
+		Pedido result = servicio.edit(p, id);
+
+		if (result == null) {
+			throw new PedidoNotFoundException(id);
+		} else {
+			return result;
+		}
+	}
+
+	@DeleteMapping("/pedido/{id}")
+	public ResponseEntity<?> delete(@PathVariable long id) {
+		Pedido result = servicio.delete(id);
+
+		if (result == null) {
+			throw new PedidoNotFoundException(id);
+		} else {
+			return ResponseEntity.noContent().build();
+		}
+	}
 	
+	@ExceptionHandler(PedidoNotFoundException.class)
+	public ResponseEntity<ApiError> handleProductoNoEncontrado(PedidoNotFoundException ex) {
+		ApiError apiError = new ApiError();
+		apiError.setEstado(HttpStatus.NOT_FOUND);
+		apiError.setFecha(LocalDateTime.now());
+		apiError.setMensaje(ex.getMessage());
+		
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
+	}
 	
-	//-------------------------------------------------------------------------------------------------------
+	@ExceptionHandler(JsonMappingException.class)
+	public ResponseEntity<ApiError> handleJsonMappingException(JsonMappingException ex) {
+		ApiError apiError = new ApiError();
+		apiError.setEstado(HttpStatus.BAD_REQUEST);
+		apiError.setFecha(LocalDateTime.now());
+		apiError.setMensaje(ex.getMessage());
+		
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiError);
+	}
+
+	// -------------------------------------------------------------------------------------------------------
 	/**
 	 * Método principal para comprobar que el usuario se haya logueado y no esté
 	 * accediendo directamente a una parte interna de la aplicación. En el login
@@ -63,6 +148,7 @@ public class PedidosController {
 
 	/**
 	 * Añadimos la lista de pedidos del usuario logueado.
+	 * 
 	 * @param model
 	 * @param usuario
 	 * @return volvemos a la consulta de pedidos
@@ -70,7 +156,7 @@ public class PedidosController {
 	@RequestMapping(value = "/menuPersonal/submit", method = RequestMethod.POST, params = "pedidos")
 	public String consultaPedidos(Model model) {
 		compruebaSesion(menuPersonal);
-		model.addAttribute("listaPedidos", servicePedido.encuentraPedidosDeUsuario(serviceUsuario.getUserId()));
+		model.addAttribute("listaPedidos", servicio.encuentraPedidosDeUsuario(serviceUsuario.getUserId()));
 		return "consultaPedidos";
 	}
 
@@ -114,17 +200,17 @@ public class PedidosController {
 		compruebaSesion("newPedido");
 		double precioTotal = 0;
 
-		//PEDIDO
+		// PEDIDO
 		Pedido pedidoNuevo = new Pedido();
-		servicePedido.setPedidoId(pedidoNuevo.getId());
+		servicio.setPedidoId(pedidoNuevo.getId());
 		int i = 0;
-		
-		//CREO UNA LINEA DE PEDIDO POR CADA PRODUCTO PEDIDO
+
+		// CREO UNA LINEA DE PEDIDO POR CADA PRODUCTO PEDIDO
 		// AÑADO LOS PRODUCTOS SELECCIONADOS AL PEDIDO
 		for (Producto producto : serviceProducto.findAll()) {
-			//LINEA DE PEDIDO
+			// LINEA DE PEDIDO
 			LineaPedido lp = new LineaPedido();
-			
+
 			if ((cantidades[i] == null) || (cantidades[i] == 0)) {
 				i++;
 			} else {
@@ -133,20 +219,19 @@ public class PedidosController {
 				lp.setPrecioCantidad();
 				lp.setNombreProducto(producto.getNombre());
 				lp.setPrecioProducto();
-				
-				
-				//Guardo la linea de pedido en la bbd
-				//LineaPedido lpGuardado = serviceLineaPedido.creaLineaPedido(lp);
-				
-				//Añado la linea de pedido al nuevo pedido creado
+
+				// Guardo la linea de pedido en la bbd
+				// LineaPedido lpGuardado = serviceLineaPedido.creaLineaPedido(lp);
+
+				// Añado la linea de pedido al nuevo pedido creado
 				pedidoNuevo.addLineaPedido(lp);
-				
+
 				precioTotal += Math.round((producto.getPrecio() * cantidades[i]) * 100d) / 100d;
 				i++;
 			}
 		}
-		if(pedidoNuevo.getLineasPedido().isEmpty()) {
-			servicePedido.borraPedidoDeUsuario(pedidoNuevo.getId());
+		if (pedidoNuevo.getLineasPedido().isEmpty()) {
+			servicio.borraPedidoDeUsuario(pedidoNuevo.getId());
 			return menuPersonal;
 		}
 		model.addAttribute("precioTotal", Math.round((precioTotal) * 100d) / 100d);
@@ -171,25 +256,27 @@ public class PedidosController {
 		}
 
 		// AÑADO EL PEDIDO AL USUARIO LOGUEADO
-		// HE CAMBIADO LA IMPLEMENTACION DEL METODO DE CREAR PEDIDO PARA QUE DEVUELVA EL PEDIDO CREADO (COMO DEBE SER)
+		// HE CAMBIADO LA IMPLEMENTACION DEL METODO DE CREAR PEDIDO PARA QUE DEVUELVA EL
+		// PEDIDO CREADO (COMO DEBE SER)
 		Usuario user = serviceUsuario.findById(serviceUsuario.getUserId());
 		pedidoNuevo.setUsuario(user);
-		Pedido guardado = servicePedido.creaPedido(pedidoNuevo); // este método ya busca dentro al usuario logueado y le añade el pedido 
-		
+		Pedido guardado = servicio.creaPedido(pedidoNuevo); // este método ya busca dentro al usuario logueado y le
+															// añade el pedido
+
 		model.addAttribute("listLineasPedido", guardado.getLineasPedido());
-		
-		//OPCION 1
+
+		// OPCION 1
 		model.addAttribute("idPedido", guardado.getId());
-		//OPCION 2
-		//servicePedido.setPedidoId(pedidoNuevo.getId());
-		
+		// OPCION 2
+		// servicePedido.setPedidoId(pedidoNuevo.getId());
+
 		model.addAttribute("telefono", serviceUsuario.findById(serviceUsuario.getUserId()).getTelefono());
 		model.addAttribute("email", serviceUsuario.findById(serviceUsuario.getUserId()).getEmail());
 
 		return resumenPedido;
-		//return "redirect:/resumenPedido";
+		// return "redirect:/resumenPedido";
 	}
-	
+
 //	@GetMapping("/resumenPedido/submit/{id}")
 //	public String recogeGetPedido(Model model, @PathVariable long id) {
 //		model.addAttribute("idPedido", id);
@@ -199,7 +286,7 @@ public class PedidosController {
 //		model.addAttribute("listLineasPedido", guardado.getLineasPedido());
 //		return resumenPedido;
 //	}
-	
+
 	/**
 	 * Método para controlar el resumen del pedido. Es necesario enviar siempre el
 	 * envio puesto que si no, dará un null pointer exception al ser requerido
@@ -219,13 +306,14 @@ public class PedidosController {
 	 */
 	@PostMapping("/resumenPedido/submit")
 	public String resumenPedido(Model model,
-			@RequestParam(value = "nuevaDireccion", required = false) String nuevaDireccion, @RequestParam(value="idPedido") String idPedido) {
+			@RequestParam(value = "nuevaDireccion", required = false) String nuevaDireccion,
+			@RequestParam(value = "idPedido") String idPedido) {
 		compruebaSesion("resumenPedido");
-		Pedido pedido = servicePedido.encuentraPedidoDeUsuario(Long.parseLong(idPedido));
+		Pedido pedido = servicio.encuentraPedidoDeUsuario(Long.parseLong(idPedido));
 		if (pedido.getDireccion().equals(nueva)) {
 			pedido.setDireccion(nuevaDireccion);
 		}
-		model.addAttribute("listaPedidos", servicePedido.encuentraPedidosDeUsuario(servicePedido.getPedidoId()));
+		model.addAttribute("listaPedidos", servicio.encuentraPedidosDeUsuario(servicio.getPedidoId()));
 		return menuPersonal;
 	}
 
@@ -242,18 +330,17 @@ public class PedidosController {
 	@GetMapping("/pedido/editar/{id}")
 	public String editarPedidoGet(Model model, @PathVariable long id) {
 		compruebaSesion("editarPedidos");
-		Pedido pedidoAEditar = servicePedido.encuentraPedidoDeUsuario(id);
+		Pedido pedidoAEditar = servicio.encuentraPedidoDeUsuario(id);
 		if (pedidoAEditar == null) {
-			servicePedido.borraPedidoDeUsuario(id);
+			servicio.borraPedidoDeUsuario(id);
 			return menuPersonal;
 		}
-		//servicePedido.setPedidoId(pedidoAEditar.getId());
-		servicePedido.setPedidoId(id);
+		// servicePedido.setPedidoId(pedidoAEditar.getId());
+		servicio.setPedidoId(id);
 		model.addAttribute("listLineasPedidos", pedidoAEditar.getLineasPedido());
 		model.addAttribute("idPedido", id);
 		return "editarPedido";
 	}
-	
 
 	/**
 	 * Método para editar un pedido ya realizado. Le pasamos el id del pedido
@@ -273,9 +360,9 @@ public class PedidosController {
 	 */
 	@PostMapping("/pedido/editar")
 	public String editaPedido(Model model, @RequestParam("cantidad") Integer[] cantidades,
-			@RequestParam("envio") String envio, @RequestParam(value="idPedido") String idPedido) {
+			@RequestParam("envio") String envio, @RequestParam(value = "idPedido") String idPedido) {
 		compruebaSesion("editarPedidos");
-		Pedido pedidoAEditar = servicePedido.encuentraPedidoDeUsuario(Long.parseLong(idPedido));
+		Pedido pedidoAEditar = servicio.encuentraPedidoDeUsuario(Long.parseLong(idPedido));
 		Pedido pedidoEditado = new Pedido(Long.parseLong(idPedido));
 		double precioTotal = 0;
 
@@ -288,7 +375,7 @@ public class PedidosController {
 			// de que el usuario pusiera a 0 todos los productos del pedido. Con lo que se
 			// tendría que eliminar el mismo.
 			if (pedidoAEditar.getLineasPedido().isEmpty()) {
-				servicePedido.borraPedidoDeUsuario(Long.parseLong(idPedido));
+				servicio.borraPedidoDeUsuario(Long.parseLong(idPedido));
 				return menuPersonal;
 			}
 			LineaPedido lp = it.next();
@@ -298,19 +385,22 @@ public class PedidosController {
 				lp.setCantidad(cantidades[i]);
 				lp.setPrecioCantidad();
 				precioTotal += lp.getPrecioCantidad();
-				//Crea un linea con todos los campos para guardarla en bbdd cuando cree el nuevo pedido a guardar y, como tiene el mismo id que uno ya creado, se actualizará cualquier cambio producido
-				LineaPedido lpEditada = new LineaPedido(lp.getCantidad(), lp.getIdLinea(), lp.getProducto(), lp.getNombreProducto(), lp.getPrecioProducto(), lp.getPrecioCantidad());
-				//lineaRepository.save(lpEditada);
+				// Crea un linea con todos los campos para guardarla en bbdd cuando cree el
+				// nuevo pedido a guardar y, como tiene el mismo id que uno ya creado, se
+				// actualizará cualquier cambio producido
+				LineaPedido lpEditada = new LineaPedido(lp.getCantidad(), lp.getIdLinea(), lp.getProducto(),
+						lp.getNombreProducto(), lp.getPrecioProducto(), lp.getPrecioCantidad());
+				// lineaRepository.save(lpEditada);
 				lineasPedido.add(lpEditada);
 				i++;
 			}
 		}
-		
-		//Seteo las propiedades que tengo hasta ahora
+
+		// Seteo las propiedades que tengo hasta ahora
 		pedidoEditado.setLineasPedido(lineasPedido);
 		Usuario user = serviceUsuario.findById(serviceUsuario.getUserId());
 		pedidoEditado.setUsuario(user);
-		
+
 		model.addAttribute("precioTotal", Math.round((precioTotal) * 100d) / 100d);
 
 		// GESTIONO EL ENVÍO
@@ -334,12 +424,11 @@ public class PedidosController {
 		model.addAttribute("listLineasPedido", pedidoEditado.getLineasPedido());
 		model.addAttribute("telefono", user.getTelefono());
 		model.addAttribute("email", user.getEmail());
-		
+
 		repositorioPedido.save(pedidoEditado);
-		
+
 		return resumenPedido;
 	}
-	
 
 	/**
 	 * Se usa el método del servicio para poder eliminar el pedido indicado. En
@@ -352,7 +441,7 @@ public class PedidosController {
 	 */
 	@GetMapping("/pedido/borrar/{id}")
 	public String BorrarPedido(Model model, @PathVariable long id) {
-		servicePedido.borraPedidoDeUsuario(id);
+		servicio.borraPedidoDeUsuario(id);
 		return menuPersonal;
 	}
 

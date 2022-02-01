@@ -45,5 +45,18 @@ public class LineaPedidoService {
 		}
 	}
 	
+	public LineaPedido add(LineaPedido p) {
+		return repositorio.save(p);
+	}
+	
+	public LineaPedido delete (long id) {
+		if (repositorio.existsById(id)) {
+			LineaPedido p = repositorio.findById(id).get();
+			repositorio.deleteById(id);
+			return p;
+		} else {
+			return null;
+		}
+	}
 	
 }

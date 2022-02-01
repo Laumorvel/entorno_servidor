@@ -9,24 +9,13 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-/**
- * Creamos una serie de atributos para definir al usuario. Se han añadido
- * algunas validaciones para que el formulario muestre errores de validación y
- * no solo de registro.
- * 
- * @author laura
- *
- */
 
 @Entity
 @Table(name = "usuarios")
 public class Usuario {
 
-	// public static int GENERADOR_COD = 1;
-
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	// @Min(1)
 	private long id;
 
 	@Column(name = "nombre", nullable = false)
@@ -44,25 +33,11 @@ public class Usuario {
 	@Column(name = "direccion")
 	private String direccion;
 
-	// @NotEmpty
-	// @Size(min = 3, max = 20, message = "El nombre debe tener más de 3 letras y
-	// menos de 20.")
 	@Column(name = "userName", nullable = false)
 	private String nombreUser;
 
-	// @NotEmpty
-	// @Pattern(regexp = "^[a-zA-Z]\\w{3,14}$", message = "Debe contener letras
-	// seguidas de números. Longitud mínima de 4.")
 	@Column(name = "contrasena", nullable = false)
 	private String contrasena;
-
-//	public static int getGENERADOR_COD() {
-//		return GENERADOR_COD;
-//	}
-//
-//	public static void setGENERADOR_COD(int gENERADOR_COD) {
-//		GENERADOR_COD = gENERADOR_COD;
-//	}
 
 	/**
 	 * El id se autoaumenta para que se autogenere sólo. No se añade al constructor.
@@ -81,7 +56,6 @@ public class Usuario {
 	 */
 	public Usuario(String nombre, String dni, String email, String telefono, String direccion, String nombreUser,
 			String contrasena) {
-		// this.id = GENERADOR_COD++;
 		this.nombre = nombre;
 		this.dni = dni;
 		this.email = email;
@@ -95,8 +69,6 @@ public class Usuario {
 	 * Constructor vacío para pasárselo dentro del getMapping del login.
 	 */
 	public Usuario() {
-		// this.id = GENERADOR_COD++;
-
 	}
 
 	/**
@@ -107,7 +79,6 @@ public class Usuario {
 	 * @param direccion
 	 */
 	public Usuario(String nombreUser, String contrasena, String direccion) {
-		// this.id = GENERADOR_COD++;
 		this.nombreUser = nombreUser;
 		this.direccion = direccion;
 		this.contrasena = contrasena;
@@ -124,7 +95,6 @@ public class Usuario {
 	 * @param email
 	 */
 	public Usuario(String nombreUser, String contrasena, String direccion, String telefono, String email) {
-		// this.id = id;
 		this.nombreUser = nombreUser;
 		this.direccion = direccion;
 		this.contrasena = contrasena;
@@ -133,7 +103,6 @@ public class Usuario {
 	}
 
 	public Usuario(String nombreUser, String contrasena) {
-		// this.id = id;
 		this.nombreUser = nombreUser;
 		this.contrasena = contrasena;
 	}
@@ -154,6 +123,7 @@ public class Usuario {
 		this.nombre = nombre;
 	}
 
+	
 	public String getDni() {
 		return dni;
 	}

@@ -22,7 +22,7 @@ public class UsuarioService {
 	private boolean logueado = false;
 	private long userId = 0;
 
-	public Usuario delete (long id) {
+	public Usuario delete(long id) {
 		if (repositorio.existsById(id)) {
 			Usuario p = repositorio.findById(id).get();
 			repositorio.deleteById(id);
@@ -113,13 +113,17 @@ public class UsuarioService {
 
 	/**
 	 * Ya no utilizo los usuarios que voy creando en el servicio, sino los que tengo
-	 * en el repositorio de usuarios
+	 * en el repositorio de usuarios. Si no coloco el orElse() daría un error de BAD
+	 * REQUEST puesto que es una operación lazy loading. Por tanto, solo te devuelve
+	 * una referencia y no accede realmente a la bbdd y, por eso, no encuentra el
+	 * serializable del objeto, porque solo accede a sus propiedades, no a l objeto
+	 * en sí.
 	 * 
 	 * @param id
 	 * @return el usuario encontrado. Si no lo ha encontrado, devuleve null.
 	 */
 	public Usuario findById(long id) {
-		return repositorio.getById(id);
+		return repositorio.findById(id).orElse(null);
 	}
 
 }
