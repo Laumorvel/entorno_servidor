@@ -8,6 +8,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;;
 
 @Entity
 @Table(name = "productos")
@@ -25,6 +26,12 @@ public class Producto {
 
 	@Column(name = "imagen")
 	private String img;
+
+	//Esta anotación hará que la bbdd ignore esta propiedad
+	//Solo la necesito para poder hacer una petición incluyendo la cantidad en el RequestBody
+	//Luego, aunque nos aparezca en el resultado de la petición, no aparece en la base de datos.
+	@Transient//¡Cuidado! --> debe importarse de persistence (no de bean)
+	private int cantidad;
 
 	public Producto() {
 	}
@@ -74,6 +81,14 @@ public class Producto {
 		this.nombre = nombre;
 	}
 
+	public int getCantidad() {
+		return cantidad;
+	}
+
+	public void setCantidad(int cantidad) {
+		this.cantidad = cantidad;
+	}
+
 	@Override
 	public int hashCode() {
 		return Objects.hash(id);
@@ -95,6 +110,5 @@ public class Producto {
 	public String toString() {
 		return "Producto [id=" + id + ", nombre=" + nombre + "]";
 	}
-
 
 }

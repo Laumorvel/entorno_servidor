@@ -17,8 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.error.ApiError;
 import com.example.demo.error.LineaPedidoNotFoundException;
-import com.example.demo.error.UsuarioNotFoundException;
 import com.example.demo.model.LineaPedido;
+import com.example.demo.model.Producto;
 import com.example.demo.service.LineaPedidoService;
 import com.fasterxml.jackson.databind.JsonMappingException;
 
@@ -28,6 +28,10 @@ public class LineaPedidoController {
 	@Autowired
 	private LineaPedidoService servicio;
 
+	/**
+	 * Busca todas las lineas de pedido de la bbd
+	 * @return lista de lineas de pedido
+	 */
 	@GetMapping("/lineapedido")
 	public ResponseEntity<List<LineaPedido>> findAll() {
 		List<LineaPedido> result = servicio.findAll();
@@ -35,6 +39,11 @@ public class LineaPedidoController {
 		return result.isEmpty() ? ResponseEntity.notFound().build() : ResponseEntity.ok(result);
 	}
 
+	/**
+	 * Busca linea de pedido por id.
+	 * @param id
+	 * @return linea de pedido concreta o null
+	 */
 	@GetMapping("/lineapedido/{id}")
 	public LineaPedido getById(@PathVariable long id) {
 		LineaPedido result = servicio.findById(id);
@@ -46,12 +55,25 @@ public class LineaPedidoController {
 		}
 	}
 
+	/**
+	 * Introduce una nueva linea de pedido
+	 * @param p
+	 * @return linea de pedido creada
+	 */
 	@PostMapping("/lineapedido")
-	public ResponseEntity<LineaPedido> add(@RequestBody LineaPedido p) {
+	public ResponseEntity<LineaPedido> add(@RequestBody Producto p) {
+	
 		LineaPedido saved = servicio.add(p);
 		return ResponseEntity.status(HttpStatus.CREATED).body(saved);
 	}
 
+	/**
+	 * Modifica la cantidad de una linea de pedido.
+	 * Se busca por id.
+	 * @param p
+	 * @param id
+	 * @return linea de pedido modificado
+	 */
 	@PutMapping("/lineapedido/{id}")
 	public LineaPedido edit(@RequestBody LineaPedido p, @PathVariable long id) {
 		LineaPedido result = servicio.edit(p, id);
@@ -63,17 +85,27 @@ public class LineaPedidoController {
 		}
 	}
 
+	/**
+	 * Elimina una linea de pedido que se busca por su id.
+	 * @param id
+	 * @return linea de pedido modificada
+	 */
 	@DeleteMapping("/lineapedido/{id}")
 	public ResponseEntity<?> delete(@PathVariable long id) {
 		LineaPedido result = servicio.delete(id);
 		
 		if (result == null) {
-			throw new UsuarioNotFoundException(id);
+			throw new LineaPedidoNotFoundException(id);
 		} else {
 			return ResponseEntity.noContent().build();
 		}
 	}
 	
+	/**
+	 * Modifica la salida de la excepción del pedido cuando no lo encuentra (404).
+	 * @param ex
+	 * @return excepción NOT_FOUND
+	 */
 	@ExceptionHandler(LineaPedidoNotFoundException.class)
 	public ResponseEntity<ApiError> handleProductoNoEncontrado(LineaPedidoNotFoundException ex) {
 		ApiError apiError = new ApiError();
@@ -84,6 +116,11 @@ public class LineaPedidoController {
 		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
 	}
 	
+	/**
+	 * Modifica la salida de la excepción cuando no se hace una petición correcta.
+	 * @param ex
+	 * @return excepción BAD_REQUEST
+	 */
 	@ExceptionHandler(JsonMappingException.class)
 	public ResponseEntity<ApiError> handleJsonMappingException(JsonMappingException ex) {
 		ApiError apiError = new ApiError();

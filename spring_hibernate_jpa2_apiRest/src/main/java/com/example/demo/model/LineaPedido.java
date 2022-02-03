@@ -59,7 +59,7 @@ public class LineaPedido {
 	 * Seteo directamente el nombre del producto para poder mostrarlo en la vista
 	 * @param nombreProducto
 	 */
-	public void setNombreProducto(String nombreProducto) {
+	public void setNombreProducto() {
 		this.nombreProducto = this.producto.getNombre();
 	}
 

@@ -22,6 +22,11 @@ public class UsuarioService {
 	private boolean logueado = false;
 	private long userId = 0;
 
+	/**
+	 * Elimina un usuario de la bbdd.
+	 * @param id
+	 * @return usuario eliminado.
+	 */
 	public Usuario delete(long id) {
 		if (repositorio.existsById(id)) {
 			Usuario p = repositorio.findById(id).get();
@@ -43,6 +48,12 @@ public class UsuarioService {
 		return repositorio.save(e);
 	}
 
+	/**
+	 * Edita un usuario de la bbdd.
+	 * @param p
+	 * @param id
+	 * @return usuario editado.
+	 */
 	public Usuario edit(Usuario p, long id) {
 		if (repositorio.existsById(id)) {
 			p.setId(id);
@@ -52,6 +63,10 @@ public class UsuarioService {
 		}
 	}
 
+	/**
+	 * Busca a todos los usuarios de la bbdd.
+	 * @return lista de usuarios
+	 */
 	public List<Usuario> getUsuarios() {
 		return usuarios;
 	}

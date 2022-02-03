@@ -27,6 +27,10 @@ public class ProductoController {
 	@Autowired
 	private ProductoService servicio;
 	
+	/**
+	 * Devuelve la lista de productos.
+	 * @return lista de productos o excepción
+	 */
 	@GetMapping("/producto")
 	public ResponseEntity<List<Producto>> findAll(){
 		List<Producto> result = servicio.findAll();
@@ -38,6 +42,11 @@ public class ProductoController {
 		}
 	}
 
+	/**
+	 * Devuelve un  producto concreto buscado por su id.
+	 * @param id
+	 * @return producto concreto o null.
+	 */
 	@GetMapping("/producto/{id}") 
 	public Producto getById(@PathVariable long id) {
 		Producto result = servicio.findById(id);
@@ -49,12 +58,23 @@ public class ProductoController {
 		}
 	}
 	
+	/**
+	 * Crea un nuevo producto.
+	 * @param p
+	 * @return producto creado
+	 */
 	@PostMapping("/producto")
 	public ResponseEntity<Producto> add(@RequestBody Producto p) {
 		Producto saved = servicio.add(p);
 		return ResponseEntity.status(HttpStatus.CREATED).body(saved);
 	}
 	
+	/**
+	 * Modifica un producto, buscado por ir.
+	 * @param p
+	 * @param id
+	 * @return el producto modificado.
+	 */
 	@PutMapping("/producto/{id}")
 	public Producto edit(@RequestBody Producto p, @PathVariable long id) {
 		Producto result = servicio.edit(p, id);
@@ -66,6 +86,11 @@ public class ProductoController {
 		}
 	}
 	
+	/**
+	 * Borra un producto buscado por id.
+	 * @param id
+	 * @return producto borrado
+	 */
 	@DeleteMapping("/producto/{id}")
 	public ResponseEntity<?> delete(@PathVariable long id) {
 		Producto result = servicio.delete(id);
@@ -77,6 +102,11 @@ public class ProductoController {
 		}
 	}
 	
+	/**
+	 * Se modifica la salida de la excepción.
+	 * @param ex
+	 * @return excepción de producto
+	 */
 	@ExceptionHandler(ProductNotFoundException.class)
 	public ResponseEntity<ApiError> handleProductoNoEncontrado(ProductNotFoundException ex) {
 		ApiError apiError = new ApiError();
@@ -87,6 +117,11 @@ public class ProductoController {
 		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
 	}
 	
+	/**
+	 * Se modifica la salida de la excepción de JsonMapping con BAD_REQUEST.
+	 * @param ex
+	 * @return excepción
+	 */
 	@ExceptionHandler(JsonMappingException.class)
 	public ResponseEntity<ApiError> handleJsonMappingException(JsonMappingException ex) {
 		ApiError apiError = new ApiError();

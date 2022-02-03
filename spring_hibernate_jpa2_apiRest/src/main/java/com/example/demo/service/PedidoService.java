@@ -4,9 +4,13 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.example.demo.error.PedidoNotFoundException;
+import com.example.demo.error.UsuarioNotFoundException;
 import com.example.demo.model.Pedido;
 import com.example.demo.model.Usuario;
+import com.example.demo.repository.LineaPedidoRepository;
 import com.example.demo.repository.PedidoRepository;
+import com.example.demo.repository.UsuarioRepository;
 
 @Service
 public class PedidoService {
@@ -14,8 +18,11 @@ public class PedidoService {
 	@Autowired
 	private PedidoRepository repositorio;
 
-//		@Query("select e from usuario e where (e.id) == :userId") 
-//		Usuario findUserById(long userId);
+	@Autowired
+	private LineaPedidoRepository lineaRepo;
+
+	@Autowired
+	private UsuarioRepository userRepo;
 
 	public void add(Pedido e) {
 		repositorio.save(e);
@@ -67,36 +74,60 @@ public class PedidoService {
 	public void setPedidoId(long pedidoRealizadoId) {
 		pedidoId = pedidoRealizadoId;
 	}
-	
-	public Pedido edit(Pedido p, long id) {
-		if(repositorio.existsById(id)) {
-			p.setId(id);
+
+	public Pedido edit(long idLinea, long id) {
+		if (repositorio.findById(id) != null) {
+			Pedido p = repositorio.findById(id).orElse(null);
+			p.getLineasPedido().add(lineaRepo.findById(idLinea).orElse(null));
+
 			return repositorio.save(p);
-		}
-		else {
+		} else {
 			return null;
 		}
 	}
-	
+
+	/**
+	 * Método para modificar la información de envío de un pedido e incluir a otro
+	 * usuario. Se comunica si el usuario introducido en el pedido no existe o si el
+	 * pedido marcado no existe.
+	 */
+	public Pedido editPedido(Pedido p, long idPedido) {
+System.out.println(p);
+		if (repositorio.findById(idPedido).orElse(null) != null) {
+			if (userRepo.findById(p.getUsuario().getId()).orElse(null) != null) {
+				Usuario u = userRepo.getById(p.getUsuario().getId());
+				Pedido pedidoOriginal = repositorio.findById(idPedido).orElse(null);
+				pedidoOriginal.setDireccion(p.getDireccion());
+				pedidoOriginal.setUsuario(u);
+				return repositorio.save(pedidoOriginal);
+			} else {
+				throw new UsuarioNotFoundException(p.getUsuario().getId());
+			}
+		}else {
+			throw new PedidoNotFoundException(idPedido);
+		}
+
+	}
+
 	public Pedido findById(long pedido) {
 		return repositorio.findById(pedido).orElse(null);
 	}
-	
+
 	public Pedido addPedido(Pedido p) {
 		return repositorio.save(p);
 	}
 
 	public Pedido borraPedidoDeUsuario(long id) {
-		if(repositorio.existsById(id)) {
+		if (repositorio.existsById(id)) {
 			Pedido p = repositorio.findById(id).get();
 			repositorio.deleteById(id);
 			return p;
-		}else {
+		} else {
 			return null;
 		}
 	}
-	
-	public Pedido delete (long id) {
+
+	public Pedido delete(long id) {
 		if (repositorio.existsById(id)) {
 			Pedido p = repositorio.findById(id).get();
 			repositorio.deleteById(id);
@@ -113,12 +144,12 @@ public class PedidoService {
 	public Pedido creaPedido(Pedido pedido) {
 		return repositorio.save(pedido);
 	}
-	
+
 	public Pedido addPedidoUser(Usuario u) {
 		Pedido p = new Pedido(u);
 		p.setDireccion(u.getDireccion());
 		p.setUsuario(u);
-		 return repositorio.save(p);
+		return repositorio.save(p);
 	}
 
 }

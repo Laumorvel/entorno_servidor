@@ -68,7 +68,13 @@ public class Usuario {
 	/**
 	 * Constructor vacío para pasárselo dentro del getMapping del login.
 	 */
+	public Usuario(long id) {
+		super();
+		this.id = id;
+	}
+	
 	public Usuario() {
+		
 	}
 
 	/**

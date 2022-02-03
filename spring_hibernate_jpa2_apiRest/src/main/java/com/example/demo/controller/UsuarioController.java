@@ -30,6 +30,10 @@ public class UsuarioController {
 	@Autowired
 	private UsuarioService servicio;
 
+	/**
+	 * Devuelve la lista de usuario.
+	 * @return usuario de la base de datos (lista)
+	 */
 	@GetMapping("/usuario")
 	public ResponseEntity<List<Usuario>> findAll() {
 		List<Usuario> result = servicio.findAll();
@@ -37,6 +41,11 @@ public class UsuarioController {
 		return result.isEmpty() ? ResponseEntity.notFound().build() : ResponseEntity.ok(result);
 	}
 
+	/**
+	 * Devuelve un usuario concreto buscado por su id.
+	 * @param id
+	 * @return usuario o excepción
+	 */
 	@GetMapping("/usuario/{id}")
 	public Usuario getById(@PathVariable long id) {
 		Usuario result = servicio.findById(id);
@@ -46,13 +55,25 @@ public class UsuarioController {
 			return result;
 		}
 	}
-
+	
+	/**
+	 * Introduce un usuario en la base de datos.
+	 * @param u
+	 * @return usuario creado
+	 */
 	@PostMapping("/usuario")
 	public ResponseEntity<Usuario> add(@RequestBody Usuario u) {
+
 		Usuario saved = servicio.add(u);
 		return ResponseEntity.status(HttpStatus.CREATED).body(saved);
 	}
 
+	/**
+	 * Edita al usuario buscado por su id.
+	 * @param u
+	 * @param id
+	 * @return usuario editado.
+	 */
 	@PutMapping("/usuario/{id}")
 	public Usuario edit(@RequestBody Usuario u, @PathVariable long id) {
 		Usuario result = servicio.edit(u, id);
@@ -64,6 +85,11 @@ public class UsuarioController {
 		}
 	}
 
+	/**
+	 * Elimina a un usuario de la bbdd
+	 * @param id
+	 * @return usuario eliminado o excepción por no encontrarlo
+	 */
 	@DeleteMapping("/usuario/{id}")
 	public ResponseEntity<?> delete(@PathVariable long id) {
 		Usuario result = servicio.delete(id);
@@ -75,6 +101,11 @@ public class UsuarioController {
 		}
 	}
 
+	/**
+	 * Modifica la salida de la excepción creada para el usuario en caso de encontrarlo.
+	 * @param ex
+	 * @return excepción NOT_FOUND
+	 */
 	@ExceptionHandler(UsuarioNotFoundException.class)
 	public ResponseEntity<ApiError> handleProductoNoEncontrado(UsuarioNotFoundException ex) {
 		ApiError apiError = new ApiError();
@@ -85,6 +116,11 @@ public class UsuarioController {
 		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
 	}
 
+	/**
+	 * Modifica la salida de la consulta mal realizada.
+	 * @param ex
+	 * @return excepción BAD_REQUEST.
+	 */
 	@ExceptionHandler(JsonMappingException.class)
 	public ResponseEntity<ApiError> handleJsonMappingException(JsonMappingException ex) {
 		ApiError apiError = new ApiError();

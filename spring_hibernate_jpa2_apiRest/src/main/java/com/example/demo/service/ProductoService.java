@@ -33,6 +33,11 @@ public class ProductoService {
 		return repositorio.findAll();
 	}
 
+	/**
+	 * Se elimina un producto buscado por su id.
+	 * @param id
+	 * @return producto eliminado.
+	 */
 	public Producto delete (long id) {
 		if (repositorio.existsById(id)) {
 			Producto p = repositorio.findById(id).get();
@@ -43,10 +48,21 @@ public class ProductoService {
 		}
 	}
 	
+	/**
+	 * Se añade un producto a la bbdd.
+	 * @param p
+	 * @return
+	 */
 	public Producto add(Producto p) {
 		return repositorio.save(p);
 	}
 
+	/**
+	 * Se edita un producto de la bbdd
+	 * @param p
+	 * @param id
+	 * @return pedido editado
+	 */
 	public Producto edit(Producto p, long id) {
 		if (repositorio.existsById(id)) {
 			p.setId(id);
