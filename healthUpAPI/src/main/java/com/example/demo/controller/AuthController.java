@@ -5,11 +5,13 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -46,31 +48,38 @@ public class AuthController {
 		try {
 			UsernamePasswordAuthenticationToken authInputToken = new UsernamePasswordAuthenticationToken(
 					body.getUsername(), body.getPassword());
-
 			authManager.authenticate(authInputToken);
-
 			String token = jwtUtil.generateToken(body.getUsername());
-
 			return Collections.singletonMap("access_token", token);
+			
 		} catch (AuthenticationException authExc) {
-			List<User> users = userRepo.findAll();
-			for (User user : users) {
-				if (user.getUsername().equals(body.getUsername())) {
-					throw new RuntimeException("Invalid password");
-				} else if (user.getPassword().equals(body.getPassword())) {
-					throw new RuntimeException("Invalid username");
-				}
+			List<String> nombresUsuario = userRepo.getUserNames();
+			List<String> passwords = userRepo.getPasswords();
+			if (nombresUsuario.contains(body.getUsername())) {
+				throw new RuntimeException("Invalid password");
+			} else if (passwords.contains(body.getPassword())) {
+				throw new RuntimeException("Invalid username");
+			} else {
+				throw new RuntimeException("Invalid username and password");
 			}
-			throw new RuntimeException("Invalid username and password");
-
 		}
 	}
-	
-	@PostMapping("auth/loginGetIdUser")
-	public Map<String, Object> loginGetIdUser(@ResquestBody String username){
-		Long idUser = userRepo.findByUsername(username).getId();
-		
-		
+
+	/**
+	 * Endpoint para comprobar que el usuario está logueado. Lo único que queremos
+	 * es que nos devuelva el token, en caso contrario, indicará que el usuario no
+	 * está logueado y solo quiere acceder directamente desde la url sin loguearse.
+	 * 
+	 * @return token o error
+	 * @throws Exception
+	 */
+	@GetMapping("/login")
+	public ResponseEntity<String> comprobarLogueo() throws Exception {
+		try {
+			return ResponseEntity.ok("");
+		} catch (Exception e) {
+			throw new Exception();
+		}
 	}
 
 }

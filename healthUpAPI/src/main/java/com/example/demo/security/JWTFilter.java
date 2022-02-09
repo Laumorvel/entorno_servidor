@@ -30,7 +30,7 @@ public class JWTFilter extends OncePerRequestFilter{
         if(authHeader != null && !authHeader.isBlank() && authHeader.startsWith("Bearer ")){
             String jwt = authHeader.substring(7);
             if(jwt == null || jwt.isBlank()){
-                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid JWT Token in Bearer Header");
+                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "You must login first");
             }else {
                 try{
                     String username = jwtUtil.validateTokenAndRetrieveSubject(jwt);
@@ -41,7 +41,7 @@ public class JWTFilter extends OncePerRequestFilter{
                         SecurityContextHolder.getContext().setAuthentication(authToken);
                     }
                 }catch(JWTVerificationException exc){
-                    response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid JWT Token");
+                    response.sendError(HttpServletResponse.SC_BAD_REQUEST, "You must login first");
                 }
             }
         }
