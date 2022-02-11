@@ -1,7 +1,6 @@
 package com.example.demo.controller;
 
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,16 +50,12 @@ public class AuthController {
 			authManager.authenticate(authInputToken);
 			String token = jwtUtil.generateToken(body.getUsername());
 			return Collections.singletonMap("access_token", token);
-			
+
 		} catch (AuthenticationException authExc) {
-			List<String> nombresUsuario = userRepo.getUserNames();
-			List<String> passwords = userRepo.getPasswords();
-			if (nombresUsuario.contains(body.getUsername())) {
+			if (userRepo.getUserName(body.getUsername()) != null) {
 				throw new RuntimeException("Invalid password");
-			} else if (passwords.contains(body.getPassword())) {
-				throw new RuntimeException("Invalid username");
-			} else {
-				throw new RuntimeException("Invalid username and password");
+			}else {
+				throw new RuntimeException("Invalid credentials");
 			}
 		}
 	}
@@ -75,11 +70,27 @@ public class AuthController {
 	 */
 	@GetMapping("/login")
 	public ResponseEntity<String> comprobarLogueo() throws Exception {
+		
 		try {
 			return ResponseEntity.ok("");
 		} catch (Exception e) {
-			throw new Exception();
+			throw new RuntimeException();
 		}
+	}
+
+	/**
+	 * Endpoint para conseguir token. Cuando hace validaciones al hacer el registro,
+	 * se debe validar que el email y el username no estén registrados en la bbdd.
+	 * Por tanto, se necesitará el token para hacer el getMapping. Aquí hago
+	 * postMapping para no tener que introducir un token, sino obtenerlo y guardarlo
+	 * en el localStorage.
+	 * 
+	 * @return (token)
+	 */
+	@PostMapping("/auth/token")
+	public Map<String, Object>  consigueToken(@RequestBody LoginCredentials body) {
+		String token = jwtUtil.generateToken(body.getEmail());
+		return Collections.singletonMap("access_token", token);
 	}
 
 }

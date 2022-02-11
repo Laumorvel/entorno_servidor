@@ -13,7 +13,7 @@ import com.example.demo.model.User;
 import com.example.demo.repository.UserRepo;
 
 @SpringBootApplication
-public class HealthUpApiApplication {
+public class HealthUpApiApplication{
 	
 	@Autowired
 	private PasswordEncoder passwordEncoder;
