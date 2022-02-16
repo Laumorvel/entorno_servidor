@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,9 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.error.ApiError;
 import com.example.demo.error.EmailAlreadyRegisteredException;
-import com.example.demo.model.LogroFood;
-import com.example.demo.model.LogroSport;
-import com.example.demo.model.TrackingSemanal;
+import com.example.demo.model.Logro;
 import com.example.demo.model.User;
 import com.example.demo.repository.UserRepo;
 import com.example.demo.service.UserService;
@@ -51,30 +50,45 @@ public class UserController {
 		return userService.getUserEmail(email);
 	}
 
-	@GetMapping("usernames/{username}")
+	@GetMapping("/usernames/{username}")
 	public User checkUsernameUsers(@PathVariable String username) {
 		return userService.getUsername(username);
 	}
 
 	/**
-	 * Añade cambios cuando el usuario pulsa el botón de logro.
-	 * @param logroSport
+	 * Consigue el registro de un usuario.
 	 * @param id
-	 * @throws Exception
+	 * @return lista de logros (registro)
 	 */
-	@PostMapping("user/{id}/trackingSemanalSport")
-	public TrackingSemanal anadeLogro(@RequestBody LogroSport logroSport, @PathVariable Long id){
-		return userService.addTrackingSemanalLS(logroSport, id);
+	@GetMapping("/user/{id}/registro")
+	public List<Logro> getRegistroUser(@PathVariable Long id) {
+		return this.userService.getRegistroUser(id);
 	}
+
 	
-	@PostMapping("user/{id}/trackingSemanalFood")
-	public TrackingSemanal anadeLogro(@RequestBody LogroFood logroFood, @PathVariable Long id) {
-		return userService.addTrackingSemanalLF(logroFood, id);
+
+	/**
+	 * Añade registro en tabla de logros cuando el usuario marque por primera vez el
+	 * logro diario. El logro lo añado en el servidio a la bbdd pero lo que devuelvo
+	 * es el usuario para tener los datos nuevos.
+	 * 
+	 * @param logro
+	 * @return logro
+	 */
+	@PostMapping("user/anadeLogro")
+	public User anadeLogro(@RequestBody Logro logro) {
+		return userService.addLogro(logro);
 	}
-	
-	@PutMapping("user/{id}/trackingSemanalSport")
-	public TrackingSemanal modificaLogro(@RequestBody LogroSport logroSport, @PathVariable Long id) {
-		return userService.cambiaTrackingSemanalLS(logroSport, id);
+
+	/**
+	 * Cambia el logro cuando el usuario vuelve a pulsar el botón el mismo día.
+	 * 
+	 * @param logro
+	 * @return logro
+	 */
+	@PutMapping("/user/modificaLogro")
+	public User modificaLogroSport(@RequestBody Logro logro) {
+		return userService.modificaLogro(logro);
 	}
 
 	/**

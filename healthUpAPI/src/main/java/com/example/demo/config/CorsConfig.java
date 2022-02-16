@@ -62,6 +62,13 @@ public class CorsConfig {
 						.allowedHeaders("Content-Type","Authorization", "X-Requested-With", "accept", "Origin",
 								"Access-Control-Request-Method", "Access-Control-Request-Headers")
 						.exposedHeaders("Access-Control-Allow-Origin", "Access-Control-Allow-Credentials");
+				
+				//registro(historial de logros)
+				registry.addMapping("/user/{id}/registro").allowedOrigins("http://localhost:4200")
+				.allowedMethods("GET", "POST", "OPTIONS", "PUT")
+				.allowedHeaders("Content-Type","Authorization", "X-Requested-With", "accept", "Origin",
+						"Access-Control-Request-Method", "Access-Control-Request-Headers")
+				.exposedHeaders("Access-Control-Allow-Origin", "Access-Control-Allow-Credentials");
 			}
 
 		};

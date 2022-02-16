@@ -1,13 +1,13 @@
 package com.example.demo.service;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.example.demo.model.LogroFood;
-import com.example.demo.model.LogroSport;
-import com.example.demo.model.TrackingSemanal;
+import com.example.demo.model.Logro;
 import com.example.demo.model.User;
-import com.example.demo.repository.TrackingSemanalRepo;
+import com.example.demo.repository.LogroRepo;
 import com.example.demo.repository.UserRepo;
 
 @Service
@@ -17,7 +17,7 @@ public class UserService {
 	private UserRepo userRepo;
 	
 	@Autowired
-	private TrackingSemanalRepo trackingRepo;
+	private LogroRepo logroRepo;
 	
 	public User getUserEmail(String email) {
 		return userRepo.findByEmail(email);
@@ -28,50 +28,34 @@ public class UserService {
 	}
 	
 	/**
-	 * Este método solo se llamará cuando se quiera añadir un logro sport.
 	 * Se hace una comprobación en el frontend para saber si hacer un put o un post
-	 * Cuando se use el post (llamado por este método), no habrá un logro sport con la misma fecha en la lista
-	 * @param ls
+	 * Cuando se use el post (llamado por este método), no habrá un logro con la misma fecha y ese id de usuario en la tabla de logros
+	 * @param logro
 	 * @param idUser
-	 * @return tracking del usuario cambiado
+	 * @return logro
 	 */
-	public TrackingSemanal addTrackingSemanalLS(LogroSport ls, Long idUser) {
-		//Consigo el tracking del usuario
-		TrackingSemanal tracking = trackingRepo.getTrackingDeUser(idUser);
-		//Le añado el logro y setea el avance si su boolena es true
-		tracking.addLogroSport(ls);
-		//Seteo el boolean del objetivo si se diera el caso
-		tracking.checkObjetivoSemanal();
-		//salvo el tracking
-		return trackingRepo.save(tracking);
+	public User addLogro(Logro logro) {
+		logro.getUser().seteaAvance(logro);
+		this.logroRepo.save(logro);	
+		return this.userRepo.save(logro.getUser());
 	}
 	
-	/**
-	 * Idéntico al método anterior pero con el LogroFood
-	 * @param lf
-	 * @param idUser
-	 * @return tracking del usuario cambiado
-	 */
-	public TrackingSemanal addTrackingSemanalLF(LogroFood lf, Long idUser) {
-		//Consigo el tracking del usuario
-		TrackingSemanal tracking = trackingRepo.getTrackingDeUser(idUser);
-		//Le añado el logro y setea el avance si su boolena es true
-		tracking.addLogroFood(lf);
-		//Seteo el boolean del objetivo si se diera el caso
-		tracking.checkObjetivoSemanal();
-		//salvo el tracking
-		return trackingRepo.save(tracking);
+	
+	public User modificaLogro(Logro logro) {
+		Logro logroGuardado = this.logroRepo.getLogro(logro.getTipo(), logro.getFecha(), logro.getUser().getId());
+		logro.setId(logroGuardado.getId());//le pongo la misma id para que lo sustituya al guardarlo.
+		logroRepo.save(logro);
+		logro.getUser().seteaAvance(logro);
+		return this.userRepo.save(logro.getUser());
 	}
 	
-	public TrackingSemanal cambiaTrackingSemanalLS(LogroSport ls, Long idUser) {
-		//Consigo el tracking del usuario
-		TrackingSemanal tracking = trackingRepo.getTrackingDeUser(idUser);
-		//Modifico el logro
-		tracking.cambiaLogroSport(ls);
-		//Seteo el boolean del objetivo si se diera el caso
-		tracking.checkObjetivoSemanal();
-		//guardo el tracking
-		return trackingRepo.save(tracking);
+	public User getUser(Long id) {
+		return userRepo.getById(id);
 	}
-
+	
+	public List<Logro> getRegistroUser(Long id) {
+		User user = this.userRepo.findById(id).get();
+		return this.logroRepo.findByUser(user);
+	}
+	
 }

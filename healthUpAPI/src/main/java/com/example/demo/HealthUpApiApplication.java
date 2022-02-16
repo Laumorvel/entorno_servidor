@@ -1,5 +1,6 @@
 package com.example.demo;
 
+import java.time.LocalDate;
 import java.util.Arrays;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +11,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import com.example.demo.model.Logro;
 import com.example.demo.model.User;
+import com.example.demo.repository.LogroRepo;
 import com.example.demo.repository.UserRepo;
 
 @SpringBootApplication
@@ -30,11 +33,17 @@ public class HealthUpApiApplication{
 	 * @return
 	 */
 	@Bean
-	CommandLineRunner initData (UserRepo repositorioUsers) {
+	CommandLineRunner initData (UserRepo repositorioUsers, LogroRepo logroRepo) {
+		User user = new User("Loli", "Montes García", passwordEncoder.encode("loli123"), "loli", "loli@gmail.com", 2, 2);
+		User user2 = new User("Pepi", "Moreno García", passwordEncoder.encode("pepi123"), "pepi", "pepi@gmail.com", 4, 3);
 		return (args) -> {
 			repositorioUsers.saveAll(
-					Arrays.asList(new User("Pepi", "Moreno García", passwordEncoder.encode("pepi123"), "pepi", "pepi@gmail.com", 4, 3)));
+					Arrays.asList(user2, user));
+			logroRepo.saveAll(
+					Arrays.asList(new Logro(LocalDate.now(), false, user2, "food"), (new Logro(LocalDate.now(), false, user2, "sport")) ));
 		};
 	}
+	
+	
 
 }
