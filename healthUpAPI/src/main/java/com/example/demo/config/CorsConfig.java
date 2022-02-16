@@ -49,8 +49,15 @@ public class CorsConfig {
 								"Access-Control-Request-Method", "Access-Control-Request-Headers")
 						.exposedHeaders("Access-Control-Allow-Origin", "Access-Control-Allow-Credentials");
 				
-				//user
+				//check email
 				registry.addMapping("/users/{email}").allowedOrigins("http://localhost:4200")
+						.allowedMethods("GET", "POST", "OPTIONS", "PUT")
+						.allowedHeaders("Content-Type","Authorization", "X-Requested-With", "accept", "Origin",
+								"Access-Control-Request-Method", "Access-Control-Request-Headers")
+						.exposedHeaders("Access-Control-Allow-Origin", "Access-Control-Allow-Credentials");
+				
+				//check username
+				registry.addMapping("/usernames/{username}").allowedOrigins("http://localhost:4200")
 						.allowedMethods("GET", "POST", "OPTIONS", "PUT")
 						.allowedHeaders("Content-Type","Authorization", "X-Requested-With", "accept", "Origin",
 								"Access-Control-Request-Method", "Access-Control-Request-Headers")

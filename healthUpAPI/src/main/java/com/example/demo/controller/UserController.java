@@ -9,10 +9,16 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.error.ApiError;
 import com.example.demo.error.EmailAlreadyRegisteredException;
+import com.example.demo.model.LogroFood;
+import com.example.demo.model.LogroSport;
+import com.example.demo.model.TrackingSemanal;
 import com.example.demo.model.User;
 import com.example.demo.repository.UserRepo;
 import com.example.demo.service.UserService;
@@ -23,7 +29,7 @@ public class UserController {
 
 	@Autowired
 	private UserRepo userRepo;
-	
+
 	@Autowired
 	private UserService userService;
 
@@ -43,6 +49,32 @@ public class UserController {
 	@GetMapping("/users/{email}")
 	public User checkEmailUsers(@PathVariable String email) {
 		return userService.getUserEmail(email);
+	}
+
+	@GetMapping("usernames/{username}")
+	public User checkUsernameUsers(@PathVariable String username) {
+		return userService.getUsername(username);
+	}
+
+	/**
+	 * Añade cambios cuando el usuario pulsa el botón de logro.
+	 * @param logroSport
+	 * @param id
+	 * @throws Exception
+	 */
+	@PostMapping("user/{id}/trackingSemanalSport")
+	public TrackingSemanal anadeLogro(@RequestBody LogroSport logroSport, @PathVariable Long id){
+		return userService.addTrackingSemanalLS(logroSport, id);
+	}
+	
+	@PostMapping("user/{id}/trackingSemanalFood")
+	public TrackingSemanal anadeLogro(@RequestBody LogroFood logroFood, @PathVariable Long id) {
+		return userService.addTrackingSemanalLF(logroFood, id);
+	}
+	
+	@PutMapping("user/{id}/trackingSemanalSport")
+	public TrackingSemanal modificaLogro(@RequestBody LogroSport logroSport, @PathVariable Long id) {
+		return userService.cambiaTrackingSemanalLS(logroSport, id);
 	}
 
 	/**

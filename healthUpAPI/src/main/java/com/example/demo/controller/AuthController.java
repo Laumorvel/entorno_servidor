@@ -38,7 +38,7 @@ public class AuthController {
 		String encodedPass = passwordEncoder.encode(user.getPassword());
 		user.setPassword(encodedPass);
 		user = userRepo.save(user);
-		String token = jwtUtil.generateToken(user.getEmail());
+		String token = jwtUtil.generateToken(user.getUsername());
 		return Collections.singletonMap("access_token", token);
 	}
 
