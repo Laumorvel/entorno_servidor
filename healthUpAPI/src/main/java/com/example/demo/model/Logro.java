@@ -1,7 +1,6 @@
 package com.example.demo.model;
 
 
-import java.time.LocalDate;
 import java.util.Objects;
 
 import javax.persistence.Entity;
@@ -26,7 +25,7 @@ public class Logro {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
-	private LocalDate fecha = LocalDate.now();
+	private String fecha;
 	
 	private Boolean logradoDia = false;
 	
@@ -56,10 +55,16 @@ public class Logro {
 		return Objects.equals(fecha, other.fecha) && tipo == other.tipo;
 	}
 
-	public Logro(LocalDate fecha, Boolean logradoDia, User user, String tipo) {
+	public Logro(String fecha, Boolean logradoDia, User user, String tipo) {
 		this.fecha = fecha;
 		this.logradoDia = logradoDia;
 		this.user = user;
+		this.tipo = tipo;
+	}
+	
+	public Logro(String fecha, Boolean logradoDia, String tipo) {
+		this.fecha = fecha;
+		this.logradoDia = logradoDia;
 		this.tipo = tipo;
 	}
 	

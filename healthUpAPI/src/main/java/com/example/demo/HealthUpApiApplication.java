@@ -1,6 +1,5 @@
 package com.example.demo;
 
-import java.time.LocalDate;
 import java.util.Arrays;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +39,11 @@ public class HealthUpApiApplication{
 			repositorioUsers.saveAll(
 					Arrays.asList(user2, user));
 			logroRepo.saveAll(
-					Arrays.asList(new Logro(LocalDate.now(), false, user2, "food"), (new Logro(LocalDate.now(), false, user2, "sport")) ));
+					//LocalDate.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy")
+					Arrays.asList(new Logro("16-02-2022", false, user2, "food"),
+							(new Logro("16-02-2022", false, user2, "sport")),
+							(new Logro("12-02-2022", true, user2, "noRegistrado")),
+							(new Logro("13-02-2022", true, user2, "food")) ));
 		};
 	}
 	

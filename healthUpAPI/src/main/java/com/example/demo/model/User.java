@@ -72,9 +72,26 @@ public class User {
 
 	public void seteaAvance(Logro logro) {
 		if (logro.getTipo().equals("food")) {
-			this.avanceSemanaFood = (logro.getLogradoDia()) ? this.avanceSemanaFood++ : this.avanceSemanaFood--;
+			if(logro.getLogradoDia()) {
+				if(this.avanceSemanaFood < 7) {
+					this.avanceSemanaFood ++;
+				}
+			}else {
+				if(this.avanceSemanaFood > 0) {
+					this.avanceSemanaFood--;
+				}
+			}
+			
 		} else if (logro.getTipo().equals("sport")) {
-			this.avanceSemanaSport = (logro.getLogradoDia()) ? this.avanceSemanaSport++ : this.avanceSemanaSport--;
+			if(logro.getLogradoDia()){
+				if(this.avanceSemanaSport < 7) {
+					this.avanceSemanaSport++ ;
+				}
+			}else {
+				if(this.avanceSemanaSport > 0) {
+					this.avanceSemanaSport--;
+				}
+			}
 		}
 		this.logradoSemanaFood = (this.objetivoFoodSemanal <= this.avanceSemanaFood);
 		this.logradoSemanaSport = (this.objetivoSportSemanal <= this.avanceSemanaSport);

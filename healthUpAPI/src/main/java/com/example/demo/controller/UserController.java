@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.error.ApiError;
@@ -75,9 +76,9 @@ public class UserController {
 	 * @param logro
 	 * @return logro
 	 */
-	@PostMapping("user/anadeLogro")
-	public User anadeLogro(@RequestBody Logro logro) {
-		return userService.addLogro(logro);
+	@PostMapping("user/{id}/newLogro")
+	public Logro anadeLogro(@RequestBody Logro logro, @PathVariable Long id) {
+		return userService.addLogro(logro, id);
 	}
 
 	/**
@@ -86,9 +87,9 @@ public class UserController {
 	 * @param logro
 	 * @return logro
 	 */
-	@PutMapping("/user/modificaLogro")
-	public User modificaLogroSport(@RequestBody Logro logro) {
-		return userService.modificaLogro(logro);
+	@PutMapping("/user/{id}/modificaLogro/{idLogro}")
+	public Logro modificaLogroSport(@RequestBody Logro logro, @PathVariable Long id, @PathVariable Long idLogro) {
+		return userService.modificaLogro(logro, id, idLogro);
 	}
 
 	/**

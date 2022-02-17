@@ -69,6 +69,20 @@ public class CorsConfig {
 				.allowedHeaders("Content-Type","Authorization", "X-Requested-With", "accept", "Origin",
 						"Access-Control-Request-Method", "Access-Control-Request-Headers")
 				.exposedHeaders("Access-Control-Allow-Origin", "Access-Control-Allow-Credentials");
+				
+				//Añade logro
+				registry.addMapping("/user/{id}/newLogro").allowedOrigins("http://localhost:4200")
+				.allowedMethods("GET", "POST", "OPTIONS", "PUT")
+				.allowedHeaders("Content-Type","Authorization", "X-Requested-With", "accept", "Origin",
+						"Access-Control-Request-Method", "Access-Control-Request-Headers")
+				.exposedHeaders("Access-Control-Allow-Origin", "Access-Control-Allow-Credentials");
+				
+				//Modifica logro
+				registry.addMapping("/user/{id}/modificaLogro/{idLogro}").allowedOrigins("http://localhost:4200")
+				.allowedMethods("GET", "POST", "OPTIONS", "PUT")
+				.allowedHeaders("Content-Type","Authorization", "X-Requested-With", "accept", "Origin",
+						"Access-Control-Request-Method", "Access-Control-Request-Headers")
+				.exposedHeaders("Access-Control-Allow-Origin", "Access-Control-Allow-Credentials");
 			}
 
 		};

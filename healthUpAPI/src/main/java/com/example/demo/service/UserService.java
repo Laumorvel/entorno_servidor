@@ -34,19 +34,23 @@ public class UserService {
 	 * @param idUser
 	 * @return logro
 	 */
-	public User addLogro(Logro logro) {
+	public Logro addLogro(Logro logro, Long id) {
+		//Encuentro al usuario por id y se lo añado al logro pues no lo trae incluido
+		User user = this.userRepo.findById(id).get();
+		logro.setUser(user);
 		logro.getUser().seteaAvance(logro);
-		this.logroRepo.save(logro);	
-		return this.userRepo.save(logro.getUser());
+		 this.userRepo.save(logro.getUser());
+		return this.logroRepo.save(logro);	
 	}
 	
 	
-	public User modificaLogro(Logro logro) {
-		Logro logroGuardado = this.logroRepo.getLogro(logro.getTipo(), logro.getFecha(), logro.getUser().getId());
-		logro.setId(logroGuardado.getId());//le pongo la misma id para que lo sustituya al guardarlo.
-		logroRepo.save(logro);
-		logro.getUser().seteaAvance(logro);
-		return this.userRepo.save(logro.getUser());
+	public Logro modificaLogro(Logro logro, Long id, Long idLogro) {
+		//Encuentro al usuario por id y se lo añado al logro pues no lo trae incluido
+		User user = this.userRepo.findById(id).get();
+		logro.setUser(user);
+		logro.setId(idLogro);//le pongo la misma id para que lo sustituya al guardarlo.
+		user.seteaAvance(logro);
+		return this.logroRepo.save(logro);
 	}
 	
 	public User getUser(Long id) {
