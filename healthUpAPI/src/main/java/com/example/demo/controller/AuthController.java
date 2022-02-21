@@ -1,24 +1,34 @@
 package com.example.demo.controller;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.demo.error.ApiError;
+import com.example.demo.error.EmailAlreadyRegisteredException;
+import com.example.demo.error.InvalidCredentialsException;
+import com.example.demo.error.UsernameAlreadyRegistered;
 import com.example.demo.model.LoginCredentials;
 import com.example.demo.model.User;
 import com.example.demo.repository.UserRepo;
 import com.example.demo.security.JWTUtil;
+import com.example.demo.service.UserService;
+import com.fasterxml.jackson.databind.JsonMappingException;
 
 @CrossOrigin(origins = "http://localhost:4200")
 @RestController
@@ -32,6 +42,8 @@ public class AuthController {
 	private AuthenticationManager authManager;
 	@Autowired
 	private PasswordEncoder passwordEncoder;
+	@Autowired
+	private UserService userService;
 
 	@PostMapping("/auth/register")
 	public Map<String, Object> registerHandler(@RequestBody User user) {
@@ -53,10 +65,27 @@ public class AuthController {
 
 		} catch (AuthenticationException authExc) {
 			if (userRepo.getUserName(body.getUsername()) != null) {
-				throw new RuntimeException("Invalid password");
-			}else {
-				throw new RuntimeException("Invalid credentials");
+				throw new InvalidCredentialsException();
+			} else {
+				throw new InvalidCredentialsException();
 			}
+		}
+	}
+
+	/**
+	 * Comprueba que el email o el username indicado. Si existe en la bbdd se lo
+	 * comunicará al usuario.
+	 * 
+	 * @param email / username
+	 * @return usuario o null
+	 */
+	@GetMapping("auth/user")
+	public User checkEmailUsers(@RequestParam(required = false) String email,
+			@RequestParam(required = false) String username) {
+		if (username == null) {
+			return userService.getUserEmail(email);
+		} else {
+			return userService.getUsername(username);
 		}
 	}
 
@@ -70,7 +99,7 @@ public class AuthController {
 	 */
 	@GetMapping("/login")
 	public ResponseEntity<String> comprobarLogueo() throws Exception {
-		
+
 		try {
 			return ResponseEntity.ok("");
 		} catch (Exception e) {
@@ -88,9 +117,71 @@ public class AuthController {
 	 * @return (token)
 	 */
 	@PostMapping("/auth/token")
-	public Map<String, Object>  consigueToken(@RequestBody LoginCredentials body) {
-		String token = jwtUtil.generateToken(body.getEmail());
-		return Collections.singletonMap("access_token", token);
+	public Map<String, Object> consigueToken(@RequestBody LoginCredentials body) {
+		try {
+			if(body != null) {
+				String token = jwtUtil.generateToken(body.getEmail());
+				return Collections.singletonMap("access_token", token);
+			}else {
+				throw new InvalidCredentialsException();
+
+			}
+		}catch(Exception ex) {
+			throw new InvalidCredentialsException();
+		}
+	}
+
+	// EXCEPCIONES------------------------------------------------------------
+	/**
+	 * Modifica la salida de la excepción del pedido
+	 * 
+	 * @param ex
+	 * @return excepción
+	 */
+	@ExceptionHandler(InvalidCredentialsException.class)
+	public ResponseEntity<ApiError> handleProductoNoEncontrado(InvalidCredentialsException ex) {
+		ApiError apiError = new ApiError();
+		apiError.setEstado(HttpStatus.CONFLICT);
+		apiError.setFecha(LocalDateTime.now());
+		apiError.setMensaje(ex.getMessage());
+
+		return ResponseEntity.status(HttpStatus.CONFLICT).body(apiError);
+	}
+
+	@ExceptionHandler(EmailAlreadyRegisteredException.class)
+	public ResponseEntity<ApiError> handleProductoNoEncontrado(EmailAlreadyRegisteredException ex) {
+		ApiError apiError = new ApiError();
+		apiError.setEstado(HttpStatus.CONFLICT);
+		apiError.setFecha(LocalDateTime.now());
+		apiError.setMensaje(ex.getMessage());
+
+		return ResponseEntity.status(HttpStatus.CONFLICT).body(apiError);
+	}
+
+	@ExceptionHandler(UsernameAlreadyRegistered.class)
+	public ResponseEntity<ApiError> handleProductoNoEncontrado(UsernameAlreadyRegistered ex) {
+		ApiError apiError = new ApiError();
+		apiError.setEstado(HttpStatus.CONFLICT);
+		apiError.setFecha(LocalDateTime.now());
+		apiError.setMensaje(ex.getMessage());
+
+		return ResponseEntity.status(HttpStatus.CONFLICT).body(apiError);
+	}
+
+	/**
+	 * Modifica la salida de la excepción BAD_REQUEST
+	 * 
+	 * @param ex
+	 * @return excepción
+	 */
+	@ExceptionHandler(JsonMappingException.class)
+	public ResponseEntity<ApiError> handleJsonMappingException(JsonMappingException ex) {
+		ApiError apiError = new ApiError();
+		apiError.setEstado(HttpStatus.BAD_REQUEST);
+		apiError.setFecha(LocalDateTime.now());
+		apiError.setMensaje(ex.getMessage());
+
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiError);
 	}
 
 }

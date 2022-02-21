@@ -34,16 +34,37 @@ public class HealthUpApiApplication{
 	@Bean
 	CommandLineRunner initData (UserRepo repositorioUsers, LogroRepo logroRepo) {
 		User user = new User("Loli", "Montes García", passwordEncoder.encode("loli123"), "loli", "loli@gmail.com", 2, 2);
-		User user2 = new User("Pepi", "Moreno García", passwordEncoder.encode("pepi123"), "pepi", "pepi@gmail.com", 4, 3);
+		User user2 = new User("Pepi", "Moreno García", passwordEncoder.encode("pepi123"), "pepi", "pepi@gmail.com", 4, 3, 1,2);
+		User user3 = new User("Pili", "Aguilar García", passwordEncoder.encode("pili123"), "pili", "pili@gmail.com", 5, 5,2,2);
 		return (args) -> {
 			repositorioUsers.saveAll(
-					Arrays.asList(user2, user));
+					Arrays.asList(user2, user, user3));
 			logroRepo.saveAll(
-					//LocalDate.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy")
+					//LocalDate.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy"))
+					
+					//PRUEBAS CON EL DÍA 20-02-2022
+					//USER 1 -- no registrado sport
 					Arrays.asList(new Logro("16-02-2022", false, user2, "food"),
 							(new Logro("16-02-2022", false, user2, "sport")),
-							(new Logro("12-02-2022", true, user2, "noRegistrado")),
-							(new Logro("13-02-2022", true, user2, "food")) ));
+							(new Logro("12-02-2022", user2, "sport", true)),//no registrado
+							(new Logro("13-02-2022", true, user2, "food")),
+							(new Logro("20-02-2022", true, user2, "food")),
+					
+					//USER 2 -- ninguno no registrado	
+							(new Logro("20-02-2022", true, user, "food")),
+							(new Logro("20-02-2022", true, user, "sport")),
+							
+					//USER 3 -- los dos no registrados
+							(new Logro("15-02-2022", true, user3, "food")),
+							(new Logro("15-02-2022", true, user3, "sport")),
+							(new Logro("14-02-2022", false, user3, "food")),
+							(new Logro("14-02-2022", false, user3, "sport")),
+							(new Logro("16-02-2022", true, user3, "food")),
+							(new Logro("16-02-2022", true, user3, "sport")),
+							(new Logro("17-02-2022", user3, "sport", true)),//no registrado
+							(new Logro("17-02-2022", user3, "food", true)),//no registrado
+							(new Logro("18-02-2022", user3, "food", true))//no registrado 
+							));
 		};
 	}
 	

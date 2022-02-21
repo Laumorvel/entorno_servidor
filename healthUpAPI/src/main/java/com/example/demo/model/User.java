@@ -42,9 +42,9 @@ public class User {
 
 	private Boolean logradoSemanaSport = false;
 
-	private Integer avanceSemanaFood = 0;
+	private Integer avanceSemanaFood;
 
-	private Integer avanceSemanaSport = 0;
+	private Integer avanceSemanaSport;
 
 	public User(String name, String surname, String password, String username, String email,
 			Integer objetivoFoodSemanal, Integer objetivoSportSemanal) {
@@ -70,32 +70,72 @@ public class User {
 		this.password = password;
 	}
 
+	public User(String name, String surname, String password, String username, String email,
+			Integer objetivoFoodSemanal, Integer objetivoSportSemanal, Integer avanceSemanaFood,
+			Integer avanceSemanaSport) {
+		this.name = name;
+		this.surname = surname;
+		this.password = password;
+		this.username = username;
+		this.email = email;
+		this.objetivoFoodSemanal = objetivoFoodSemanal;
+		this.objetivoSportSemanal = objetivoSportSemanal;
+		this.avanceSemanaFood = avanceSemanaFood;
+		this.avanceSemanaSport = avanceSemanaSport;
+	}
+
 	public void seteaAvance(Logro logro) {
-		if (logro.getTipo().equals("food")) {
-			if(logro.getLogradoDia()) {
-				if(this.avanceSemanaFood < 7) {
-					this.avanceSemanaFood ++;
+		if (logro.getLogradoDia() != null) {
+			if (logro.getTipo().equals("food")) {
+				if (logro.getLogradoDia()) {
+					if (this.avanceSemanaFood < 7) {
+						this.avanceSemanaFood++;
+					}
+				} else {
+					if (this.avanceSemanaFood > 0) {
+						this.avanceSemanaFood--;
+					}
 				}
-			}else {
-				if(this.avanceSemanaFood > 0) {
-					this.avanceSemanaFood--;
-				}
-			}
-			
-		} else if (logro.getTipo().equals("sport")) {
-			if(logro.getLogradoDia()){
-				if(this.avanceSemanaSport < 7) {
-					this.avanceSemanaSport++ ;
-				}
-			}else {
-				if(this.avanceSemanaSport > 0) {
-					this.avanceSemanaSport--;
+
+			} else if (logro.getTipo().equals("sport")) {
+				if (logro.getLogradoDia()) {
+					if (this.avanceSemanaSport < 7) {
+						this.avanceSemanaSport++;
+					}
+				} else {
+					if (this.avanceSemanaSport > 0) {
+						this.avanceSemanaSport--;
+					}
 				}
 			}
 		}
 		this.logradoSemanaFood = (this.objetivoFoodSemanal <= this.avanceSemanaFood);
 		this.logradoSemanaSport = (this.objetivoSportSemanal <= this.avanceSemanaSport);
 	}
-	
+
+	/**
+	 * Cuando sea un post, no se le restará al avance 1 si es false.
+	 * 
+	 * @param logro
+	 */
+	public void seteaAvancePost(Logro logro) {
+		if (logro.getLogradoDia() != null) {
+			if (logro.getTipo().equals("food")) {
+				if (logro.getLogradoDia()) {
+					if (this.avanceSemanaFood < 7) {
+						this.avanceSemanaFood++;
+					}
+				}
+			} else if (logro.getTipo().equals("sport")) {
+				if (logro.getLogradoDia()) {
+					if (this.avanceSemanaSport < 7) {
+						this.avanceSemanaSport++;
+					}
+				}
+			}
+		}
+		this.logradoSemanaFood = (this.objetivoFoodSemanal <= this.avanceSemanaFood);
+		this.logradoSemanaSport = (this.objetivoSportSemanal <= this.avanceSemanaSport);
+	}
 
 }

@@ -25,7 +25,30 @@ public interface UserRepo extends JpaRepository<User, Long> {
 		@Query(value = "SELECT username FROM user", nativeQuery = true)
 		List<String> getUsernames();
 		
+		/**
+		 * Query para volver a poner a 0 los objetivos de los usuarios todos los lunes a las 00:00:00
+		 * A tener en cuenta que el update tiene que tener el mismo nombre que poseen las columnas en la BBDD
+		 */
+		@Query(value = "UPDATE user SET avance_semana_food = 0, avance_semana_sport = 0", nativeQuery = true)
+		void reiniciaAvance();
 		
+//		/**
+//		 * Consigue los logros registrados del día de hoy del usuario
+//		 * @param hoy
+//		 * @return
+//		 */
+//		@Query(value = "SELECT * FROM logro WHERE fecha = ?1 AND user_id= ?2", nativeQuery = true)
+//		List<Logro> getLogrosRegistradosHoy(String hoy, Long id);
 		
+		/**
+		 * Petición para no traerme todos los usuarios
+		 * Devuelve las ids de los usuarios
+		 * @return
+		 */
+		@Query(value = "SELECT id FROM user", nativeQuery = true)
+		List<Long> getIdsUsers();
 		
+//		@Query(value = "SELECT avance_semana_sport FROM user WHERE id = ?1", nativeQuery = true)
+//		Integer getAvanceSportUser(Long id);
+//		
 }

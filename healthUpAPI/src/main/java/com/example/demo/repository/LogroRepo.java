@@ -15,5 +15,14 @@ public interface LogroRepo extends JpaRepository<Logro, Long>{
 	
 	
 	public List<Logro> findByUser(User user);
-
+	
+	@Query (value = "SELECT DISTINCT user_id FROM logro WHERE user_id NOT IN (SELECT user_id FROM logro WHERE fecha=?1 AND tipo='food') ", nativeQuery = true)
+	List<Long>getIdUsersWithoutFoodRegister(String fecha);
+	
+	@Query (value = "SELECT DISTINCT user_id FROM logro WHERE user_id NOT IN (SELECT user_id FROM logro WHERE fecha=?1 AND tipo='sport') ", nativeQuery = true)
+	List<Long>getIdUsersWithoutSportRegister(String fecha);
+	
+	@Query(value = "SELECT * FROM logro WHERE user_id = ?1 AND tipo = ?2")
+	List<Logro>getLogrosTipo(Long user_id, String tipo);
+	
 }

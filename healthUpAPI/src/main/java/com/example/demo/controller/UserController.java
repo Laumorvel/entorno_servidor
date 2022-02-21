@@ -18,6 +18,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.error.ApiError;
 import com.example.demo.error.EmailAlreadyRegisteredException;
+import com.example.demo.error.InvalidCredentialsException;
+import com.example.demo.error.LogroNoExistenteException;
+import com.example.demo.error.UsuarioNoExistenteException;
 import com.example.demo.model.Logro;
 import com.example.demo.model.User;
 import com.example.demo.repository.UserRepo;
@@ -34,39 +37,29 @@ public class UserController {
 	private UserService userService;
 
 	@GetMapping("/user")
-	public ResponseEntity<Long> getUserDetails() {
-		String username = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		return ResponseEntity.ok(userRepo.findByUsername(username).getId());
-	}
-
-	/**
-	 * Comprueba que el email indicado no se encuentra en la bbdd. Así, el usuario
-	 * puede usarlo para registrarse.
-	 * 
-	 * @param email
-	 * @return usuario o null
-	 */
-	@GetMapping("/users/{email}")
-	public User checkEmailUsers(@PathVariable String email) {
-		return userService.getUserEmail(email);
-	}
-
-	@GetMapping("/usernames/{username}")
-	public User checkUsernameUsers(@PathVariable String username) {
-		return userService.getUsername(username);
+	public User getUserDetails() {
+		try {
+			String username = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+			return userRepo.findByUsername(username);
+		}catch(Exception e) {
+			throw new InvalidCredentialsException();
+		}
 	}
 
 	/**
 	 * Consigue el registro de un usuario.
+	 * 
 	 * @param id
 	 * @return lista de logros (registro)
 	 */
 	@GetMapping("/user/{id}/registro")
-	public List<Logro> getRegistroUser(@PathVariable Long id) {
-		return this.userService.getRegistroUser(id);
+	public List<Logro> getRegistroUser(@PathVariable Long id, @RequestParam (required = false) String tipo) {
+		if(tipo == null) {
+			return this.userService.getRegistroUser(id);
+		}else {
+			return this.userService.getRegistroFiltradoTipo(id, tipo);
+		}
 	}
-
-	
 
 	/**
 	 * Añade registro en tabla de logros cuando el usuario marque por primera vez el
@@ -91,6 +84,8 @@ public class UserController {
 	public Logro modificaLogroSport(@RequestBody Logro logro, @PathVariable Long id, @PathVariable Long idLogro) {
 		return userService.modificaLogro(logro, id, idLogro);
 	}
+	
+	//Exceptiones------------------------------------------------------------------------------
 
 	/**
 	 * Modifica la salida de la excepción del pedido
@@ -122,5 +117,25 @@ public class UserController {
 		apiError.setMensaje(ex.getMessage());
 
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiError);
+	}
+	
+	@ExceptionHandler(LogroNoExistenteException.class)
+	public ResponseEntity<ApiError> handleProductoNoEncontrado(LogroNoExistenteException ex) {
+		ApiError apiError = new ApiError();
+		apiError.setEstado(HttpStatus.NOT_FOUND);
+		apiError.setFecha(LocalDateTime.now());
+		apiError.setMensaje(ex.getMessage());
+
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
+	}
+	
+	@ExceptionHandler(UsuarioNoExistenteException.class)
+	public ResponseEntity<ApiError> handleProductoNoEncontrado(UsuarioNoExistenteException ex) {
+		ApiError apiError = new ApiError();
+		apiError.setEstado(HttpStatus.NOT_FOUND);
+		apiError.setFecha(LocalDateTime.now());
+		apiError.setMensaje(ex.getMessage());
+
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
 	}
 }

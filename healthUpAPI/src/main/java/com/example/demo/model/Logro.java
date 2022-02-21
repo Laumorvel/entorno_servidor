@@ -27,7 +27,9 @@ public class Logro {
 	
 	private String fecha;
 	
-	private Boolean logradoDia = false;
+	private Boolean logradoDia;
+	
+	private Boolean noRegistrado;
 	
 	@ManyToOne
 	private User user;
@@ -55,6 +57,34 @@ public class Logro {
 		return Objects.equals(fecha, other.fecha) && tipo == other.tipo;
 	}
 
+	
+	public Logro(String fecha, Boolean logradoDia, String tipo) {
+		this.fecha = fecha;
+		this.logradoDia = logradoDia;
+		this.tipo = tipo;
+	}
+	
+	/**
+	 * NO REGISTRADO
+	 * @param fecha
+	 * @param user
+	 * @param tipo
+	 * @param noRegistrado
+	 */
+	public Logro(String fecha, User user, String tipo, Boolean noRegistrado) {
+		this.fecha = fecha;
+		this.user = user;
+		this.tipo = tipo;
+		this.noRegistrado = noRegistrado;
+	}
+
+	/**
+	 * normales
+	 * @param fecha
+	 * @param logradoDia
+	 * @param user
+	 * @param tipo
+	 */
 	public Logro(String fecha, Boolean logradoDia, User user, String tipo) {
 		this.fecha = fecha;
 		this.logradoDia = logradoDia;
@@ -62,11 +92,6 @@ public class Logro {
 		this.tipo = tipo;
 	}
 	
-	public Logro(String fecha, Boolean logradoDia, String tipo) {
-		this.fecha = fecha;
-		this.logradoDia = logradoDia;
-		this.tipo = tipo;
-	}
 	
 	
 
