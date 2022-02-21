@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import com.example.demo.error.ApiError;
 import com.example.demo.error.LogroNoExistenteException;
+import com.example.demo.error.LogroNoRegistradoException;
 import com.example.demo.error.UsuarioNoExistenteException;
 import com.example.demo.model.Logro;
 import com.example.demo.model.User;
@@ -109,7 +110,11 @@ public class UserService {
 		} catch (Exception e) {
 			throw new UsuarioNoExistenteException();
 		}
-		return this.logroRepo.getLogrosTipo(id, tipo);
+		if(tipo.equals("food") || tipo.equals("sport")) {
+			return this.logroRepo.getLogrosTipo(id, tipo);
+		}else {
+			throw new LogroNoRegistradoException();
+		}
 	}
 
 	public void reiniciaAvance() {

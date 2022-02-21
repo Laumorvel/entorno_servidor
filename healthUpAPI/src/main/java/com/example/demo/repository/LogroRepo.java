@@ -22,7 +22,13 @@ public interface LogroRepo extends JpaRepository<Logro, Long>{
 	@Query (value = "SELECT DISTINCT user_id FROM logro WHERE user_id NOT IN (SELECT user_id FROM logro WHERE fecha=?1 AND tipo='sport') ", nativeQuery = true)
 	List<Long>getIdUsersWithoutSportRegister(String fecha);
 	
-	@Query(value = "SELECT * FROM logro WHERE user_id = ?1 AND tipo = ?2")
+	/**
+	 * No se puede usar * puesto que JPA no sabría qué devolver. De esta manera, sabe que debe devolver instancias de logro.
+	 * @param user_id
+	 * @param tipo
+	 * @return lista de logros que coincidan con los parámetros introducidos
+	 */
+	@Query(value = "SELECT l FROM Logro l WHERE user_id = ?1 AND tipo = ?2")
 	List<Logro>getLogrosTipo(Long user_id, String tipo);
 	
 }
