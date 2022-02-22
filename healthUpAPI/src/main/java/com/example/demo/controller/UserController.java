@@ -13,13 +13,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.error.ApiError;
 import com.example.demo.error.EmailAlreadyRegisteredException;
 import com.example.demo.error.InvalidCredentialsException;
 import com.example.demo.error.LogroNoExistenteException;
+import com.example.demo.error.UserNotFounfException;
 import com.example.demo.error.UsuarioNoExistenteException;
 import com.example.demo.model.Logro;
 import com.example.demo.model.User;
@@ -38,12 +38,29 @@ public class UserController {
 
 	@GetMapping("/user")
 	public User getUserDetails() {
+		User user;
 		try {
 			String username = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-			return userRepo.findByUsername(username);
-		}catch(Exception e) {
+			try {
+				user = userRepo.findByUsername(username);
+			}catch(Exception e) {
+				throw new InvalidCredentialsException();
+			}
+			return user;
+		} catch (Exception e) {
 			throw new InvalidCredentialsException();
 		}
+	}
+	
+	@GetMapping("/user/{id}")
+	public User getUser(@PathVariable Long id) {
+		User user;
+		try {
+			user = userRepo.findById(id).get();
+		}catch(Exception e) {
+			throw new UserNotFounfException(id);
+		}
+		return user;
 	}
 
 	/**
@@ -53,12 +70,8 @@ public class UserController {
 	 * @return lista de logros (registro)
 	 */
 	@GetMapping("/user/{id}/registro")
-	public List<Logro> getRegistroUser(@PathVariable Long id, @RequestParam (required = false) String tipo) {
-		if(tipo == null) {
-			return this.userService.getRegistroUser(id);
-		}else {
-			return this.userService.getRegistroFiltradoTipo(id, tipo);
-		}
+	public List<Logro> getRegistroUser(@PathVariable Long id) {
+		return this.userService.getRegistroUser(id);
 	}
 
 	/**
@@ -84,8 +97,8 @@ public class UserController {
 	public Logro modificaLogroSport(@RequestBody Logro logro, @PathVariable Long id, @PathVariable Long idLogro) {
 		return userService.modificaLogro(logro, id, idLogro);
 	}
-	
-	//Exceptiones------------------------------------------------------------------------------
+
+	// Exceptiones------------------------------------------------------------------------------
 
 	/**
 	 * Modifica la salida de la excepción del pedido
@@ -118,6 +131,16 @@ public class UserController {
 
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiError);
 	}
+
+	@ExceptionHandler(UserNotFounfException.class)
+	public ResponseEntity<ApiError> handleProductoNoEncontrado(UserNotFounfException ex) {
+		ApiError apiError = new ApiError();
+		apiError.setEstado(HttpStatus.NOT_FOUND);
+		apiError.setFecha(LocalDateTime.now());
+		apiError.setMensaje(ex.getMessage());
+
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
+	}
 	
 	@ExceptionHandler(LogroNoExistenteException.class)
 	public ResponseEntity<ApiError> handleProductoNoEncontrado(LogroNoExistenteException ex) {
@@ -128,7 +151,7 @@ public class UserController {
 
 		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
 	}
-	
+
 	@ExceptionHandler(UsuarioNoExistenteException.class)
 	public ResponseEntity<ApiError> handleProductoNoEncontrado(UsuarioNoExistenteException ex) {
 		ApiError apiError = new ApiError();

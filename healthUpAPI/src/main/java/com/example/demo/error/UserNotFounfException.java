@@ -12,7 +12,7 @@ public class UserNotFounfException extends RuntimeException {
 	private static final long serialVersionUID = 1L;
 	
 	public UserNotFounfException(Long id) {
-		super("User with id "+ id + "cannot be found");
+		super("User with id "+ id + " cannot be found");
 	}
 	
 	
