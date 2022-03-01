@@ -1,23 +1,21 @@
 package com.example.demo.service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import com.example.demo.error.ApiError;
+import com.example.demo.error.EmailAlreadyRegisteredException;
+import com.example.demo.error.LogroAlreadyRegisteredException;
 import com.example.demo.error.LogroNoExistenteException;
 import com.example.demo.error.LogroNoRegistradoException;
+import com.example.demo.error.ObjectiveNotAllowedException;
+import com.example.demo.error.UsernameAlreadyRegistered;
 import com.example.demo.error.UsuarioNoExistenteException;
 import com.example.demo.model.Logro;
 import com.example.demo.model.User;
 import com.example.demo.repository.LogroRepo;
 import com.example.demo.repository.UserRepo;
-import com.fasterxml.jackson.databind.JsonMappingException;
 
 @Service
 public class UserService {
@@ -47,36 +45,57 @@ public class UserService {
 	 */
 	public Logro addLogro(Logro logro, Long id) {
 		// Encuentro al usuario por id y se lo añado al logro pues no lo trae incluido
+		User user;
 		try {
-			User user = this.userRepo.findById(id).get();
-			try {
-				logro.setUser(user);
-				user.seteaAvancePost(logro);
-				this.userRepo.save(user);
-				return this.logroRepo.save(logro);
-			} catch (Exception e) {
-				throw new LogroNoExistenteException();
-			}
+			user = this.userRepo.findById(id).get();
 		} catch (Exception e) {
 			throw new UsuarioNoExistenteException();
+		}
+		compruebaLogro(logro, id);
+		try {
+			logro.setUser(user);
+			user.seteaAvancePost(logro);
+			this.userRepo.save(user);
+			return this.logroRepo.save(logro);
+		} catch (Exception e) {
+			throw new LogroNoExistenteException();
+		}
+	}
 
+	private void compruebaLogro(Logro logro, Long id) {
+		if (this.logroRepo.getLogro(logro.getTipo(), logro.getFecha(), id) != null) {
+			throw new LogroAlreadyRegisteredException();
+		}
+	}
+
+	public void compruebaRegistro(User user) {
+		if (this.userRepo.findByUsername(user.getUsername()) != null) {
+			throw new UsernameAlreadyRegistered();
+		}
+		if (this.userRepo.findByEmail(user.getEmail()) != null) {
+			throw new EmailAlreadyRegisteredException();
 		}
 	}
 
 	public Logro modificaLogro(Logro logro, Long id, Long idLogro) {
 		// Encuentro al usuario por id y se lo añado al logro pues no lo trae incluido
+		User user;
 		try {
-			User user = this.userRepo.findById(id).get();
-			try {
-				logro.setUser(user);
-				logro.setId(idLogro);// le pongo la misma id para que lo sustituya al guardarlo.
-				user.seteaAvance(logro);
-				return this.logroRepo.save(logro);
-			} catch (Exception e) {
-				throw new LogroNoExistenteException();
-			}
+			user = this.userRepo.findById(id).get();
 		} catch (Exception e) {
 			throw new UsuarioNoExistenteException();
+		}
+		if (this.logroRepo.getIdLogroFromUser(idLogro, id) == null) {
+			throw new LogroNoExistenteException();
+		}
+
+		try {
+			logro.setUser(user);
+			logro.setId(idLogro);// le pongo la misma id para que lo sustituya al guardarlo.
+			user.seteaAvance(logro);
+			return this.logroRepo.save(logro);
+		} catch (Exception e) {
+			throw new LogroNoExistenteException();
 		}
 
 	}
@@ -102,17 +121,18 @@ public class UserService {
 			throw new LogroNoExistenteException();
 		}
 	}
-	
-	public List<Logro> getRegistroFiltradoTipo(Long id, String tipo){
-		//Hago esto para comprobar que el usuario introducido existe
+
+	public List<Logro> getRegistroFiltradoTipo(Long id, String tipo) {
+		// Hago esto para comprobar que el usuario introducido existe
+		User user;
 		try {
-			User user = this.userRepo.findById(id).get();
+			user = this.userRepo.findById(id).get();
 		} catch (Exception e) {
 			throw new UsuarioNoExistenteException();
 		}
-		if(tipo.equals("food") || tipo.equals("sport")) {
-			return this.logroRepo.getLogrosTipo(id, tipo);
-		}else {
+		if (tipo.equals("food") || tipo.equals("sport")) {
+			return this.logroRepo.getLogrosTipo(user.getId(), tipo);
+		} else {
 			throw new LogroNoRegistradoException();
 		}
 	}
@@ -131,51 +151,59 @@ public class UserService {
 		Logro logroFood = new Logro(ayer, user, tipo, true);
 		this.logroRepo.save(logroFood);
 	}
-	
-	public List<Long> getIdUsersWithoutFoodRegister(String fecha){
+
+	public List<Long> getIdUsersWithoutFoodRegister(String fecha) {
 		return this.logroRepo.getIdUsersWithoutFoodRegister(fecha);
 	}
-	
-	public List<Long> getIdUsersWithoutSportRegister(String fecha){
+
+	public List<Long> getIdUsersWithoutSportRegister(String fecha) {
 		return this.logroRepo.getIdUsersWithoutSportRegister(fecha);
 	}
-	
-	//Exceptions-------------------------------------------------------
-	
+
+	public void eliminaLogro(Long id, Long idUser) {
+		try {
+			this.userRepo.findById(idUser).get();
+		} catch (Exception e) {
+			throw new UsuarioNoExistenteException();
+		}
+		if (this.logroRepo.getIdLogroFromUser(id, idUser) == null) {
+			throw new LogroNoExistenteException();
+		}else {
+			this.logroRepo.deleteById(id);
+		}
+		
+	}
+
 	/**
-	 * Modifica la salida de la excepción BAD_REQUEST
-	 * 
-	 * @param ex
-	 * @return excepción
+	 * Actualiza el objetivo de deporte del usuario.
+	 * @param id
+	 * @param objetivoSport
+	 * @return usuario
 	 */
-	@ExceptionHandler(JsonMappingException.class)
-	public ResponseEntity<ApiError> handleJsonMappingException(JsonMappingException ex) {
-		ApiError apiError = new ApiError();
-		apiError.setEstado(HttpStatus.BAD_REQUEST);
-		apiError.setFecha(LocalDateTime.now());
-		apiError.setMensaje(ex.getMessage());
-
-		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiError);
+	public User cambiaObjetivoSport(Long id, Integer objetivoSport, String tipo) {
+		User user;
+		try {
+			user = this.userRepo.findById(id).get();
+		} catch (Exception e) {
+			throw new UsuarioNoExistenteException();
+		}
+		if(tipo.equals("sport")) {
+			if(objetivoSport > 0 && objetivoSport < 8) {
+				user.setObjetivoSportSemanal(objetivoSport);
+				return this.userRepo.save(user);
+			}else {
+				throw new ObjectiveNotAllowedException();
+			}
+		}else {
+			if(objetivoSport > 0 && objetivoSport < 8) {
+				user.setObjetivoFoodSemanal(objetivoSport);
+				return this.userRepo.save(user);
+			}else {
+				throw new ObjectiveNotAllowedException();
+			}
+		}
 	}
 	
-	@ExceptionHandler(LogroNoExistenteException.class)
-	public ResponseEntity<ApiError> handleProductoNoEncontrado(LogroNoExistenteException ex) {
-		ApiError apiError = new ApiError();
-		apiError.setEstado(HttpStatus.NOT_FOUND);
-		apiError.setFecha(LocalDateTime.now());
-		apiError.setMensaje(ex.getMessage());
-
-		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
-	}
 	
-	@ExceptionHandler(UsuarioNoExistenteException.class)
-	public ResponseEntity<ApiError> handleProductoNoEncontrado(UsuarioNoExistenteException ex) {
-		ApiError apiError = new ApiError();
-		apiError.setEstado(HttpStatus.NOT_FOUND);
-		apiError.setFecha(LocalDateTime.now());
-		apiError.setMensaje(ex.getMessage());
-
-		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
-	}
 
 }

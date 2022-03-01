@@ -1,5 +1,6 @@
 package com.example.demo.model;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -23,15 +24,19 @@ public class User {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
+	@Column(nullable = false)
 	private String name;
 
+	@Column(nullable = false)
 	private String surname;
 
 	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
 	private String password;
 
+	@Column(nullable = false)
 	private String username;
 
+	@Column(nullable = false)
 	private String email;
 
 	private Integer objetivoFoodSemanal;
@@ -42,9 +47,9 @@ public class User {
 
 	private Boolean logradoSemanaSport = false;
 
-	private Integer avanceSemanaFood;
+	private Integer avanceSemanaFood = 0;
 
-	private Integer avanceSemanaSport;
+	private Integer avanceSemanaSport = 0;
 
 	public User(String name, String surname, String password, String username, String email,
 			Integer objetivoFoodSemanal, Integer objetivoSportSemanal) {

@@ -23,7 +23,7 @@ public class SeleniumTest {
 	
 	@Test
 	public void Pantalla() {
-		driver.get("http://localhost:8288/ProyectoHibernate2/");
+		driver.get("http://localhost:8080");
 		WebElement user = driver.findElement(By.id("nombreUser"));
 		WebElement password = driver.findElement(By.id("contrasena"));
 		WebElement boton = driver.findElement(By.className("btn"));
@@ -34,7 +34,7 @@ public class SeleniumTest {
 		
 		String titulo = driver.getCurrentUrl();
 		
-		assertTrue(titulo.equals("http://localhost:8288/ProyectoHibernate2/login/submit"));
+		assertTrue(titulo.equals("http://localhost:8080/login/submit"));
 	}
 	
 

@@ -42,7 +42,6 @@ public class HealthUpApiApplication{
 			logroRepo.saveAll(
 					//LocalDate.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy"))
 					
-					//PRUEBAS CON EL DÍA 20-02-2022
 					//USER 1 -- no registrado sport
 					Arrays.asList(new Logro("16-02-2022", false, user2, "food"),
 							(new Logro("16-02-2022", false, user2, "sport")),
@@ -68,6 +67,34 @@ public class HealthUpApiApplication{
 		};
 	}
 	
-	
+//	@Bean
+//	public JavaMailSender getJavaMailSender() {
+//	    JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
+//	    mailSender.setHost(" smtp-relay.sendinblue.com");
+//	    mailSender.setPort(587);
+//	    
+//	    mailSender.setUsername("lauramorelez@gmail.com");
+//	    mailSender.setPassword("012rHd6gtc5XMz7m");
+//	    
+//	    Properties props = mailSender.getJavaMailProperties();
+//	    props.put("mail.transport.protocol", "smtp");
+//	    props.put("mail.smtp.auth", "true");
+//	    props.put("mail.smtp.starttls.enable", "true");
+//	    props.put("mail.debug", "true");
+//	    
+//	    return mailSender;
+//	}
+//	
+//	/**
+//	 * Crea template para enviar un texto modelo en los emails.
+//	 * @return
+//	 */
+//	@Bean
+//	public SimpleMailMessage templateSimpleMessage() {
+//	    SimpleMailMessage message = new SimpleMailMessage();
+//	    message.setText(
+//	      "Thanks for your message! HelathUp is working on your suggestions.");
+//	    return message;
+//	}
 
 }

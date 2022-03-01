@@ -7,18 +7,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.error.ApiError;
 import com.example.demo.error.EmailAlreadyRegisteredException;
 import com.example.demo.error.InvalidCredentialsException;
+import com.example.demo.error.LogroAlreadyRegisteredException;
 import com.example.demo.error.LogroNoExistenteException;
+import com.example.demo.error.ObjectiveNotAllowedException;
 import com.example.demo.error.UserNotFounfException;
 import com.example.demo.error.UsuarioNoExistenteException;
 import com.example.demo.model.Logro;
@@ -43,7 +47,7 @@ public class UserController {
 			String username = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 			try {
 				user = userRepo.findByUsername(username);
-			}catch(Exception e) {
+			} catch (Exception e) {
 				throw new InvalidCredentialsException();
 			}
 			return user;
@@ -51,13 +55,30 @@ public class UserController {
 			throw new InvalidCredentialsException();
 		}
 	}
-	
+
+	/**
+	 * Actualiza el objetivo SPORT del usuario
+	 * 
+	 * @param id
+	 * @param objetivoSport
+	 * @return usuario
+	 */
+	@PutMapping("/user/{id}")
+	public User cambiaObjetivoSport(@PathVariable Long id, @RequestParam(required = false) Integer objetivoSport,
+			@RequestParam(required = false) Integer objetivoFood) {
+		if(objetivoSport != null) {
+			return this.userService.cambiaObjetivoSport(id, objetivoSport, "sport");
+		}else {
+			return this.userService.cambiaObjetivoSport(id, objetivoSport, "food");
+		}
+	}
+
 	@GetMapping("/user/{id}")
 	public User getUser(@PathVariable Long id) {
 		User user;
 		try {
 			user = userRepo.findById(id).get();
-		}catch(Exception e) {
+		} catch (Exception e) {
 			throw new UserNotFounfException(id);
 		}
 		return user;
@@ -96,6 +117,11 @@ public class UserController {
 	@PutMapping("/user/{id}/modificaLogro/{idLogro}")
 	public Logro modificaLogroSport(@RequestBody Logro logro, @PathVariable Long id, @PathVariable Long idLogro) {
 		return userService.modificaLogro(logro, id, idLogro);
+	}
+
+	@DeleteMapping("user/{idUser}/eliminaLogro/{id}")
+	public void eliminaLogro(@PathVariable Long id, @PathVariable Long idUser) {
+		this.userService.eliminaLogro(id, idUser);
 	}
 
 	// Exceptiones------------------------------------------------------------------------------
@@ -141,7 +167,7 @@ public class UserController {
 
 		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
 	}
-	
+
 	@ExceptionHandler(LogroNoExistenteException.class)
 	public ResponseEntity<ApiError> handleProductoNoEncontrado(LogroNoExistenteException ex) {
 		ApiError apiError = new ApiError();
@@ -160,5 +186,25 @@ public class UserController {
 		apiError.setMensaje(ex.getMessage());
 
 		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
+	}
+
+	@ExceptionHandler(LogroAlreadyRegisteredException.class)
+	public ResponseEntity<ApiError> handleProductoNoEncontrado(LogroAlreadyRegisteredException ex) {
+		ApiError apiError = new ApiError();
+		apiError.setEstado(HttpStatus.CONFLICT);
+		apiError.setFecha(LocalDateTime.now());
+		apiError.setMensaje(ex.getMessage());
+
+		return ResponseEntity.status(HttpStatus.CONFLICT).body(apiError);
+	}
+
+	@ExceptionHandler(ObjectiveNotAllowedException.class)
+	public ResponseEntity<ApiError> handleProductoNoEncontrado(ObjectiveNotAllowedException ex) {
+		ApiError apiError = new ApiError();
+		apiError.setEstado(HttpStatus.CONFLICT);
+		apiError.setFecha(LocalDateTime.now());
+		apiError.setMensaje(ex.getMessage());
+
+		return ResponseEntity.status(HttpStatus.CONFLICT).body(apiError);
 	}
 }

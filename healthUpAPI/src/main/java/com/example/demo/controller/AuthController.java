@@ -4,9 +4,12 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Map;
 
+import javax.mail.MessagingException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
@@ -22,11 +25,15 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.demo.error.ApiError;
 import com.example.demo.error.EmailAlreadyRegisteredException;
 import com.example.demo.error.InvalidCredentialsException;
+import com.example.demo.error.MessageWronglyFormedException;
+import com.example.demo.error.UserWronglyFormedException;
 import com.example.demo.error.UsernameAlreadyRegistered;
 import com.example.demo.model.LoginCredentials;
+import com.example.demo.model.Mensaje;
 import com.example.demo.model.User;
 import com.example.demo.repository.UserRepo;
 import com.example.demo.security.JWTUtil;
+import com.example.demo.service.MensajeService;
 import com.example.demo.service.UserService;
 import com.fasterxml.jackson.databind.JsonMappingException;
 
@@ -44,14 +51,23 @@ public class AuthController {
 	private PasswordEncoder passwordEncoder;
 	@Autowired
 	private UserService userService;
+	@Autowired
+	private MensajeService mensajeService;
 
 	@PostMapping("/auth/register")
-	public Map<String, Object> registerHandler(@RequestBody User user) {
-		String encodedPass = passwordEncoder.encode(user.getPassword());
-		user.setPassword(encodedPass);
-		user = userRepo.save(user);
-		String token = jwtUtil.generateToken(user.getUsername());
-		return Collections.singletonMap("access_token", token);
+	public Map<String, Object> registerHandler(@RequestBody User user) throws Exception {
+		userService.compruebaRegistro(user);
+		try {
+			String encodedPass = passwordEncoder.encode(user.getPassword());
+			user.setPassword(encodedPass);
+			user = userRepo.save(user);
+			String token = jwtUtil.generateToken(user.getUsername());
+			return Collections.singletonMap("access_token", token);
+		}catch(HttpMessageNotReadableException e) {
+			throw new Exception("This request requires a body");
+		}catch(Exception e ) {
+			throw new UserWronglyFormedException();
+		}
 	}
 
 	@PostMapping("/auth/login")
@@ -130,6 +146,11 @@ public class AuthController {
 			throw new InvalidCredentialsException();
 		}
 	}
+	
+	@PostMapping("auth/newMessage")
+	public Mensaje newMessage(@RequestBody Mensaje msg) throws MessagingException {
+		return mensajeService.newMensaje(msg);
+	}
 
 	// EXCEPCIONES------------------------------------------------------------
 	/**
@@ -147,7 +168,27 @@ public class AuthController {
 
 		return ResponseEntity.status(HttpStatus.CONFLICT).body(apiError);
 	}
+	
+	@ExceptionHandler(HttpMessageNotReadableException.class)
+	public ResponseEntity<ApiError> handleProductoNoEncontrado(HttpMessageNotReadableException ex) {
+		ApiError apiError = new ApiError();
+		apiError.setEstado(HttpStatus.BAD_REQUEST);
+		apiError.setFecha(LocalDateTime.now());
+		apiError.setMensaje(ex.getMessage());
 
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiError);
+	}
+
+	@ExceptionHandler(UserWronglyFormedException.class)
+	public ResponseEntity<ApiError> handleProductoNoEncontrado(UserWronglyFormedException ex) {
+		ApiError apiError = new ApiError();
+		apiError.setEstado(HttpStatus.BAD_REQUEST);
+		apiError.setFecha(LocalDateTime.now());
+		apiError.setMensaje(ex.getMessage());
+
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiError);
+	}
+	
 	@ExceptionHandler(EmailAlreadyRegisteredException.class)
 	public ResponseEntity<ApiError> handleProductoNoEncontrado(EmailAlreadyRegisteredException ex) {
 		ApiError apiError = new ApiError();
@@ -168,14 +209,19 @@ public class AuthController {
 		return ResponseEntity.status(HttpStatus.CONFLICT).body(apiError);
 	}
 
-	/**
-	 * Modifica la salida de la excepción BAD_REQUEST
-	 * 
-	 * @param ex
-	 * @return excepción
-	 */
+	
 	@ExceptionHandler(JsonMappingException.class)
 	public ResponseEntity<ApiError> handleJsonMappingException(JsonMappingException ex) {
+		ApiError apiError = new ApiError();
+		apiError.setEstado(HttpStatus.BAD_REQUEST);
+		apiError.setFecha(LocalDateTime.now());
+		apiError.setMensaje(ex.getMessage());
+
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiError);
+	}
+	
+	@ExceptionHandler(MessageWronglyFormedException.class)
+	public ResponseEntity<ApiError> handleJsonMappingException(MessageWronglyFormedException ex) {
 		ApiError apiError = new ApiError();
 		apiError.setEstado(HttpStatus.BAD_REQUEST);
 		apiError.setFecha(LocalDateTime.now());

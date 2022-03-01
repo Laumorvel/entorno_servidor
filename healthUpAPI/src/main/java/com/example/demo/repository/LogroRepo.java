@@ -31,4 +31,7 @@ public interface LogroRepo extends JpaRepository<Logro, Long>{
 	@Query(value = "SELECT l FROM Logro l WHERE user_id = ?1 AND tipo = ?2")
 	List<Logro>getLogrosTipo(Long user_id, String tipo);
 	
+	@Query (value= "SELECT id FROM logro WHERE id = ?1 AND user_id = ?2", nativeQuery = true)
+	Long getIdLogroFromUser(Long id, Long idUser);
+	
 }

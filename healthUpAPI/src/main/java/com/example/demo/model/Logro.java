@@ -3,11 +3,14 @@ package com.example.demo.model;
 
 import java.util.Objects;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,15 +28,18 @@ public class Logro {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
+	@Column(nullable = false)
 	private String fecha;
-	
+
 	private Boolean logradoDia;
 	
 	private Boolean noRegistrado;
 	
+	@JsonIgnore
 	@ManyToOne
 	private User user;
 	
+	@Column(nullable = false)
 	private String tipo;
 	
 	
