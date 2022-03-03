@@ -19,15 +19,20 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.error.ApiError;
 import com.example.demo.error.EmailAlreadyRegisteredException;
+import com.example.demo.error.IncorrectDateException;
 import com.example.demo.error.InvalidCredentialsException;
 import com.example.demo.error.LogroAlreadyRegisteredException;
 import com.example.demo.error.LogroNoExistenteException;
 import com.example.demo.error.ObjectiveNotAllowedException;
+import com.example.demo.error.PremioNotFoundException;
 import com.example.demo.error.UserNotFounfException;
 import com.example.demo.error.UsuarioNoExistenteException;
 import com.example.demo.model.Logro;
+import com.example.demo.model.Premio;
 import com.example.demo.model.User;
+import com.example.demo.repository.PremioRepo;
 import com.example.demo.repository.UserRepo;
+import com.example.demo.service.PremioService;
 import com.example.demo.service.UserService;
 import com.fasterxml.jackson.databind.JsonMappingException;
 
@@ -39,6 +44,12 @@ public class UserController {
 
 	@Autowired
 	private UserService userService;
+	
+	@Autowired
+	private PremioRepo premioRepo;
+	
+	@Autowired
+	private PremioService premioService;
 
 	@GetMapping("/user")
 	public User getUserDetails() {
@@ -63,26 +74,29 @@ public class UserController {
 	 * @param objetivoSport
 	 * @return usuario
 	 */
-	@PutMapping("/user/{id}")
-	public User cambiaObjetivoSport(@PathVariable Long id, @RequestParam(required = false) Integer objetivoSport,
+	@PutMapping("/user")
+	public User cambiaObjetivoSport(@RequestParam(required = false) Integer objetivoSport,
 			@RequestParam(required = false) Integer objetivoFood) {
+		String username = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		Long id = this.userRepo.findByUsername(username).getId();
 		if(objetivoSport != null) {
 			return this.userService.cambiaObjetivoSport(id, objetivoSport, "sport");
 		}else {
 			return this.userService.cambiaObjetivoSport(id, objetivoSport, "food");
 		}
 	}
-
-	@GetMapping("/user/{id}")
-	public User getUser(@PathVariable Long id) {
-		User user;
-		try {
-			user = userRepo.findById(id).get();
-		} catch (Exception e) {
-			throw new UserNotFounfException(id);
-		}
-		return user;
-	}
+//
+//	@GetMapping("/user")
+//	public User getUser() {
+//		String username = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+//		User user;
+//		try {
+//			user = this.userRepo.findByUsername(username);
+//		} catch (Exception e) {
+//			throw new UserNotFounfException();
+//		}
+//		return user;
+//	}
 
 	/**
 	 * Consigue el registro de un usuario.
@@ -90,8 +104,10 @@ public class UserController {
 	 * @param id
 	 * @return lista de logros (registro)
 	 */
-	@GetMapping("/user/{id}/registro")
-	public List<Logro> getRegistroUser(@PathVariable Long id) {
+	@GetMapping("/registro")
+	public List<Logro> getRegistroUser() {
+		String username = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		Long id = this.userRepo.findByUsername(username).getId();
 		return this.userService.getRegistroUser(id);
 	}
 
@@ -103,8 +119,10 @@ public class UserController {
 	 * @param logro
 	 * @return logro
 	 */
-	@PostMapping("user/{id}/newLogro")
-	public Logro anadeLogro(@RequestBody Logro logro, @PathVariable Long id) {
+	@PostMapping("/newLogro")
+	public Logro anadeLogro(@RequestBody Logro logro) {
+		String username = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		Long id = this.userRepo.findByUsername(username).getId();
 		return userService.addLogro(logro, id);
 	}
 
@@ -114,14 +132,32 @@ public class UserController {
 	 * @param logro
 	 * @return logro
 	 */
-	@PutMapping("/user/{id}/modificaLogro/{idLogro}")
-	public Logro modificaLogroSport(@RequestBody Logro logro, @PathVariable Long id, @PathVariable Long idLogro) {
+	@PutMapping("/modificaLogro/{idLogro}")
+	public Logro modificaLogroSport(@RequestBody Logro logro, @PathVariable Long idLogro) {
+		String username = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		Long id = this.userRepo.findByUsername(username).getId();
 		return userService.modificaLogro(logro, id, idLogro);
 	}
 
-	@DeleteMapping("user/{idUser}/eliminaLogro/{id}")
-	public void eliminaLogro(@PathVariable Long id, @PathVariable Long idUser) {
+	@DeleteMapping("/eliminaLogro/{id}")
+	public void eliminaLogro(@PathVariable Long id) {
+		String username = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		Long idUser = this.userRepo.findByUsername(username).getId();
 		this.userService.eliminaLogro(id, idUser);
+	}
+	
+	/**
+	 * Para que un usuario le de un premio a otro.
+	 * Se modifica el premio
+	 * @param idUser
+	 * @param idPremio
+	 * @return Premio
+	 */
+	@PutMapping("/premio/{idPremio}/user/{idUser}")
+	public Premio anadePremioSegunLogro(@PathVariable Long idUser, @PathVariable Long idPremio) {
+		String username = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		if(username == null) {throw new UserNotFounfException();}
+		return this.premioService.daPremio(idUser, idPremio, username);
 	}
 
 	// Exceptiones------------------------------------------------------------------------------
@@ -160,6 +196,26 @@ public class UserController {
 
 	@ExceptionHandler(UserNotFounfException.class)
 	public ResponseEntity<ApiError> handleProductoNoEncontrado(UserNotFounfException ex) {
+		ApiError apiError = new ApiError();
+		apiError.setEstado(HttpStatus.NOT_FOUND);
+		apiError.setFecha(LocalDateTime.now());
+		apiError.setMensaje(ex.getMessage());
+
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
+	}
+	
+	@ExceptionHandler(IncorrectDateException.class)
+	public ResponseEntity<ApiError> handleProductoNoEncontrado(IncorrectDateException ex) {
+		ApiError apiError = new ApiError();
+		apiError.setEstado(HttpStatus.BAD_REQUEST);
+		apiError.setFecha(LocalDateTime.now());
+		apiError.setMensaje(ex.getMessage());
+
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiError);
+	}
+	
+	@ExceptionHandler(PremioNotFoundException.class)
+	public ResponseEntity<ApiError> handleProductoNoEncontrado(PremioNotFoundException ex) {
 		ApiError apiError = new ApiError();
 		apiError.setEstado(HttpStatus.NOT_FOUND);
 		apiError.setFecha(LocalDateTime.now());

@@ -1,10 +1,14 @@
 package com.example.demo.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -50,7 +54,9 @@ public class User {
 	private Integer avanceSemanaFood = 0;
 
 	private Integer avanceSemanaSport = 0;
+	
 
+	
 	public User(String name, String surname, String password, String username, String email,
 			Integer objetivoFoodSemanal, Integer objetivoSportSemanal) {
 		this.name = name;

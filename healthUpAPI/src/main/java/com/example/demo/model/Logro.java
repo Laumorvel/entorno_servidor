@@ -41,7 +41,7 @@ public class Logro {
 	
 	@Column(nullable = false)
 	private String tipo;
-	
+
 	
 	/**
 	 * HashCode e equal por fecha y tipo

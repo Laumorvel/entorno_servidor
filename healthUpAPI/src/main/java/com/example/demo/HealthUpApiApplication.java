@@ -11,8 +11,10 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.example.demo.model.Logro;
+import com.example.demo.model.Premio;
 import com.example.demo.model.User;
 import com.example.demo.repository.LogroRepo;
+import com.example.demo.repository.PremioRepo;
 import com.example.demo.repository.UserRepo;
 
 @SpringBootApplication
@@ -32,7 +34,7 @@ public class HealthUpApiApplication{
 	 * @return
 	 */
 	@Bean
-	CommandLineRunner initData (UserRepo repositorioUsers, LogroRepo logroRepo) {
+	CommandLineRunner initData (UserRepo repositorioUsers, LogroRepo logroRepo, PremioRepo premioRepo) {
 		User user = new User("Loli", "Montes García", passwordEncoder.encode("loli123"), "loli", "loli@gmail.com", 2, 2);
 		User user2 = new User("Pepi", "Moreno García", passwordEncoder.encode("pepi123"), "pepi", "pepi@gmail.com", 4, 3, 1,2);
 		User user3 = new User("Pili", "Aguilar García", passwordEncoder.encode("pili123"), "pili", "pili@gmail.com", 5, 5,2,2);
@@ -64,37 +66,18 @@ public class HealthUpApiApplication{
 							(new Logro("17-02-2022", user3, "food", true)),//no registrado
 							(new Logro("18-02-2022", user3, "food", true))//no registrado 
 							));
+			
+			//PREMIOS
+			Premio premio6 = new Premio("Premio amigo", user);
+			Premio premio7 = new Premio("Premio a la compasión", user2);
+			Premio premio8 = new Premio("Premio al esfuerzo", user3);
+			
+			premioRepo.saveAll(
+					Arrays.asList(
+							 premio6, premio7, premio8));
 		};
 	}
 	
-//	@Bean
-//	public JavaMailSender getJavaMailSender() {
-//	    JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
-//	    mailSender.setHost(" smtp-relay.sendinblue.com");
-//	    mailSender.setPort(587);
-//	    
-//	    mailSender.setUsername("lauramorelez@gmail.com");
-//	    mailSender.setPassword("012rHd6gtc5XMz7m");
-//	    
-//	    Properties props = mailSender.getJavaMailProperties();
-//	    props.put("mail.transport.protocol", "smtp");
-//	    props.put("mail.smtp.auth", "true");
-//	    props.put("mail.smtp.starttls.enable", "true");
-//	    props.put("mail.debug", "true");
-//	    
-//	    return mailSender;
-//	}
-//	
-//	/**
-//	 * Crea template para enviar un texto modelo en los emails.
-//	 * @return
-//	 */
-//	@Bean
-//	public SimpleMailMessage templateSimpleMessage() {
-//	    SimpleMailMessage message = new SimpleMailMessage();
-//	    message.setText(
-//	      "Thanks for your message! HelathUp is working on your suggestions.");
-//	    return message;
-//	}
+	
 
 }

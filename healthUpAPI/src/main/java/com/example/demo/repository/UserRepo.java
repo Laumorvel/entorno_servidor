@@ -32,14 +32,7 @@ public interface UserRepo extends JpaRepository<User, Long> {
 		@Query(value = "UPDATE user SET avance_semana_food = 0, avance_semana_sport = 0", nativeQuery = true)
 		void reiniciaAvance();
 		
-//		/**
-//		 * Consigue los logros registrados del día de hoy del usuario
-//		 * @param hoy
-//		 * @return
-//		 */
-//		@Query(value = "SELECT * FROM logro WHERE fecha = ?1 AND user_id= ?2", nativeQuery = true)
-//		List<Logro> getLogrosRegistradosHoy(String hoy, Long id);
-		
+
 		/**
 		 * Petición para no traerme todos los usuarios
 		 * Devuelve las ids de los usuarios
@@ -48,7 +41,6 @@ public interface UserRepo extends JpaRepository<User, Long> {
 		@Query(value = "SELECT id FROM user", nativeQuery = true)
 		List<Long> getIdsUsers();
 		
-//		@Query(value = "SELECT avance_semana_sport FROM user WHERE id = ?1", nativeQuery = true)
-//		Integer getAvanceSportUser(Long id);
-//		
+	
+	
 }
