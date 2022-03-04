@@ -8,6 +8,13 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
 
+/**
+ * Componente necesario para crear los emails de la aplicación y enviarlos de
+ * acuerdo a los datos insertados.
+ * 
+ * @author laura
+ *
+ */
 @Component
 public class EmailServiceImpl {
 
@@ -16,22 +23,23 @@ public class EmailServiceImpl {
 
 	/**
 	 * Envía un mensaje de confirmación para indicar que se ha recibido el mensaje.
+	 * 
 	 * @param to
 	 * @param msg
 	 * @param name
-	 * @throws MessagingException 
+	 * @throws MessagingException
 	 */
 	public void sendSimpleMessage(String to, String subject, String body) throws MessagingException {
 
 		MimeMessage message = emailSender.createMimeMessage();
 		MimeMessageHelper helper;
 		helper = new MimeMessageHelper(message, true);
-		
-		//helper.setFrom("lauramorelez@gmail.com");
+
+		// helper.setFrom("lauramorelez@gmail.com");
 		helper.setTo(to);
 		helper.setSubject(subject);
 		helper.setText(body, true);
-		
+
 		emailSender.send(message);
 	}
 

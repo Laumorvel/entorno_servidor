@@ -41,6 +41,12 @@ public class Logro {
 	
 	@Column(nullable = false)
 	private String tipo;
+	
+	/**
+	 * Solo algunos logros tienen premios
+	 */
+	@ManyToOne
+	private Premio premio = null;
 
 	
 	/**
@@ -70,13 +76,8 @@ public class Logro {
 		this.tipo = tipo;
 	}
 	
-	/**
-	 * NO REGISTRADO
-	 * @param fecha
-	 * @param user
-	 * @param tipo
-	 * @param noRegistrado
-	 */
+	
+	//NO REGISTRADO
 	public Logro(String fecha, User user, String tipo, Boolean noRegistrado) {
 		this.fecha = fecha;
 		this.user = user;
@@ -84,13 +85,7 @@ public class Logro {
 		this.noRegistrado = noRegistrado;
 	}
 
-	/**
-	 * normales
-	 * @param fecha
-	 * @param logradoDia
-	 * @param user
-	 * @param tipo
-	 */
+	//LOGRO BÁSICO
 	public Logro(String fecha, Boolean logradoDia, User user, String tipo) {
 		this.fecha = fecha;
 		this.logradoDia = logradoDia;
@@ -98,7 +93,14 @@ public class Logro {
 		this.tipo = tipo;
 	}
 	
-	
+	//LOGRO CON PREMIO
+	public Logro(String fecha, Boolean logradoDia, User user, String tipo, Premio premio) {
+		this.fecha = fecha;
+		this.logradoDia = logradoDia;
+		this.user = user;
+		this.tipo = tipo;
+		this.premio = premio;
+	}
 	
 
 }
