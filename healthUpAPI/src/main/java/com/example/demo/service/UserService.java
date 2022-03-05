@@ -6,6 +6,7 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.error.EmailAlreadyRegisteredException;
@@ -38,6 +39,10 @@ public class UserService {
 
 	@Autowired
 	private LogroRepo logroRepo;
+	
+	@Autowired
+	private PasswordEncoder passwordEncoder;
+
 
 	/**
 	 * Devuelve el email del usuario
@@ -335,6 +340,18 @@ public class UserService {
 		} catch (ParseException e) {
 			return false;
 		}
+	}
+	
+	/**
+	 * Cambia la contraseña del usuario por la indicada
+	 * @param newPassword
+	 * @param id
+	 * @return
+	 */
+	public User cambiaContrasena(String newPassword, Long id) {
+		User user = this.userRepo.getById(id);
+		user.setPassword(passwordEncoder.encode(newPassword));
+		return this.userRepo.save(user);
 	}
 
 }

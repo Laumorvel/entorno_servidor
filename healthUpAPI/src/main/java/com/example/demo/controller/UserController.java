@@ -91,13 +91,15 @@ public class UserController {
 	 */
 	@PutMapping("/user")
 	public User cambiaObjetivoSport(@RequestParam(required = false) Integer objetivoSport,
-			@RequestParam(required = false) Integer objetivoFood) {
+			@RequestParam(required = false) Integer objetivoFood, @RequestParam (required=false)String newPassword) {
 		String username = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		Long id = this.userRepo.findByUsername(username).getId();
 		if (objetivoSport != null) {
 			return this.userService.cambiaObjetivoSport(id, objetivoSport, "sport");
-		} else {
+		} else if(objetivoFood != null) {
 			return this.userService.cambiaObjetivoSport(id, objetivoSport, "food");
+		}else {
+			return this.userService.cambiaContrasena(newPassword, id);
 		}
 	}
 
@@ -211,7 +213,19 @@ public class UserController {
 	public void eliminaPremio(@PathVariable Long idLogro, @PathVariable Long idPremio) {
 		premioService.borraPremio(idPremio, idLogro);
 	}
-
+	
+	/**
+	 * Consigue la contraseña del usuario.
+	 * @return string
+	 */
+	@GetMapping("/getPassword")
+	public String getPassword() {
+		String username = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		User user = this.userRepo.findByUsername(username);
+		return user.getPassword();
+	}
+	
+	
 	// Exceptiones------------------------------------------------------------------------------
 
 	/**
