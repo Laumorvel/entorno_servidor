@@ -20,18 +20,18 @@ import com.example.demo.repository.PremioRepo;
 import com.example.demo.repository.UserRepo;
 @SpringBootApplication
 @EnableScheduling
-public class HealthUpApiApplication extends SpringBootServletInitializer{
+public class HealthUpApi3Despliegue extends SpringBootServletInitializer{
 	
 	@Override
 	protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
-		return builder.sources(HealthUpApiApplication.class);
+		return builder.sources(HealthUpApi3Despliegue.class);
 	}
 	
 	@Autowired
 	private PasswordEncoder passwordEncoder;
 
 	public static void main(String[] args) {
-		SpringApplication.run(HealthUpApiApplication.class, args);
+		SpringApplication.run(HealthUpApi3Despliegue.class, args);
 	}
 	
 	/**
